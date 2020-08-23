@@ -6,6 +6,7 @@ import (
 	"os"
 	"tkame123-net/worldcup-gq-server/graph"
 	"tkame123-net/worldcup-gq-server/graph/generated"
+	"tkame123-net/worldcup-gq-server/lib/env"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
@@ -14,6 +15,11 @@ import (
 const defaultPort = "8080"
 
 func main() {
+	//// env
+	if err := env.Load(); err != nil {
+		log.Fatalf("faild to load env: %+v", err)
+	}
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = defaultPort
