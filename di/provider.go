@@ -7,12 +7,12 @@ import (
 	"os"
 	"tkame123-net/worldcup-gq-server/adapter"
 	"tkame123-net/worldcup-gq-server/infra/mongodb"
-	"tkame123-net/worldcup-gq-server/infra/mongodb/compatition"
+	"tkame123-net/worldcup-gq-server/infra/mongodb/competition"
 )
 
 var providerSet = wire.NewSet(
 	provideMongodbClient,
-	compatition.NewRepository,
+	competition.NewRepository,
 )
 
 func provideMongodbClient() adapter.MongoClient {

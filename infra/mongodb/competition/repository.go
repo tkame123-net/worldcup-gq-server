@@ -1,4 +1,4 @@
-package compatition
+package competition
 
 import (
 	"context"
@@ -36,6 +36,8 @@ func (r *repository) GetAll(ctx context.Context) ([]*domain.Competition, error) 
 	if err != nil {
 		return nil, fmt.Errorf("message: %w", err)
 	}
+
+	log.Printf("col: %s", collection)
 
 	defer cur.Close(ctx)
 	for cur.Next(ctx) {

@@ -1,4 +1,4 @@
-package compatition
+package competition
 
 import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -12,7 +12,7 @@ type entity struct {
 	Country string             `bson:"Country" json:"Country"`
 }
 
-const collection = "compatition"
+const collection = "competition"
 
 func (e *entity) toDomain() *domain.Competition {
 	return &domain.Competition{
