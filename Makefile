@@ -11,10 +11,10 @@ test: gen
 #	ENV_FILE=/Volumes/SSD/rep/blog-server/.env go test ./...
 
 build: test
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o build/user_api github.com/tkame123-net/worldcup-gq-server/server
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o build/user_api server.go
 
 build-local: test
-	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -a -installsuffix cgo -o build/user_api github.com/tkame123-net/worldcup-gq-server/server
+	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -a -installsuffix cgo -o build/user_api server.go
 
 run-local: build-local
 	cp .env.dev .env

@@ -39,7 +39,6 @@ func (r *repository) GetAll(ctx context.Context) ([]*domain.Competition, error) 
 
 	defer cur.Close(ctx)
 	for cur.Next(ctx) {
-		fmt.Printf("c: %v", cur)
 		var i entity
 		err := cur.Decode(&i)
 		if err != nil {
