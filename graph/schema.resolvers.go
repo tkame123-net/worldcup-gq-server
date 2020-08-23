@@ -13,13 +13,13 @@ import (
 	"tkame123-net/worldcup-gq-server/infra/mongodb/competition"
 )
 
-func (r *queryResolver) AllCompetition(ctx context.Context) ([]*model.Competition, error) {
+func (r *queryResolver) AllCompetition(ctx context.Context, country *string) ([]*model.Competition, error) {
 	// todo: to wire
 	cl := mongodb.NewClient(os.Getenv("MONGODB_URI"), os.Getenv("MONGODB_DATABASE"))
 	repo := competition.NewRepository(cl)
 
 	ctx = context.Background()
-	res, err := repo.GetAll(ctx)
+	res, err := repo.GetAllByCountry(ctx, country)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}

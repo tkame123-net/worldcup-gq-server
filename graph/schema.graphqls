@@ -8,7 +8,7 @@ type Competition {
 }
 
 type Query {
-  allCompetition: [Competition]!
+  allCompetition(country: String): [Competition]!
 }
 
 # type Mutation {

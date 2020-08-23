@@ -16,6 +16,7 @@ type MongoClient func(ctx context.Context) (*MongoDBAPI, error)
 
 type MongodbCompetitionRepository interface {
 	GetAll(ctx context.Context) ([]*domain.Competition, error)
+	GetAllByCountry(ctx context.Context, country *string) ([]*domain.Competition, error)
 	//GetAllByPost(ctx context.Context, id *domain.PostID) ([]*domain.BlogPostComment, error)
 	//Get(ctx context.Context, id *domain.BlogPostCommentID) (*domain.BlogPostComment, error)
 	//Exists(ctx context.Context, id *domain.BlogPostCommentID) (bool, error)
