@@ -5,10 +5,13 @@
 type Competition {
   year: String!
   country: String!
+
+  prevCompetition: Competition
+  nextCompetition: Competition
 }
 
 type Query {
-  allCompetition(country: String): [Competition]!
+  allCompetition: [Competition]!
 }
 
 # type Mutation {

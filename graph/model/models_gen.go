@@ -3,6 +3,8 @@
 package model
 
 type Competition struct {
-	Year    string `json:"year"`
-	Country string `json:"country"`
+	Year            string       `json:"year"`
+	Country         string       `json:"country"`
+	PrevCompetition *Competition `json:"prevCompetition"`
+	NextCompetition *Competition `json:"nextCompetition"`
 }

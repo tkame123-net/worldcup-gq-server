@@ -54,3 +54,10 @@ models:
       - github.com/99designs/gqlgen/graphql.Int
       - github.com/99designs/gqlgen/graphql.Int64
       - github.com/99designs/gqlgen/graphql.Int32
+  Competition:
+    fields:
+      prevCompetition:
+        resolver: true
+      nextCompetition:
+        resolver: true
+

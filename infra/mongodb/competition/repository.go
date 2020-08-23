@@ -21,6 +21,31 @@ func NewRepository(client adapter.MongoClient) adapter.MongodbCompetitionReposit
 	}
 }
 
+func (r *repository) GetByYear(ctx context.Context, year *int) (*domain.Competition, error) {
+	var entity entity
+
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+	c, err := r.client(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("message: %w", err)
+	}
+	defer c.Client.Disconnect(ctx)
+	col := c.Client.Database(c.Database).Collection(collection)
+
+	e := col.FindOne(ctx, bson.M{"Year": year}).Decode(&entity)
+	if e != nil {
+		// todo: エラーハンドリング（Nodocだけ分岐させたい）
+		return nil, nil
+	}
+
+	log.Println("[info] infra/mongodb/Competition/GetByYear")
+	log.Println("[info] ", *year)
+	log.Println("[info] ", entity)
+
+	return entity.toDomain(), nil
+}
+
 func (r *repository) GetAll(ctx context.Context) ([]*domain.Competition, error) {
 	var entities []entity
 
@@ -37,8 +62,6 @@ func (r *repository) GetAll(ctx context.Context) ([]*domain.Competition, error) 
 	if err != nil {
 		return nil, fmt.Errorf("message: %w", err)
 	}
-
-	log.Printf("col: %s", collection)
 
 	defer cur.Close(ctx)
 	for cur.Next(ctx) {
@@ -84,8 +107,6 @@ func (r *repository) GetAllByCountry(ctx context.Context, country *string) ([]*d
 	if err != nil {
 		return nil, fmt.Errorf("message: %w", err)
 	}
-
-	log.Printf("col: %s", collection)
 
 	defer cur.Close(ctx)
 	for cur.Next(ctx) {

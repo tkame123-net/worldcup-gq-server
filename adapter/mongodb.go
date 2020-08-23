@@ -15,6 +15,7 @@ type MongoDBAPI struct {
 type MongoClient func(ctx context.Context) (*MongoDBAPI, error)
 
 type MongodbCompetitionRepository interface {
+	GetByYear(ctx context.Context, year *int) (*domain.Competition, error)
 	GetAll(ctx context.Context) ([]*domain.Competition, error)
 	GetAllByCountry(ctx context.Context, country *string) ([]*domain.Competition, error)
 	//GetAllByPost(ctx context.Context, id *domain.PostID) ([]*domain.BlogPostComment, error)
