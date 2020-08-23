@@ -19,3 +19,7 @@ build-local: test
 run-local: build-local
 	cp .env.dev .env
 	build/user_api
+
+run-linux: build
+	cp .env.dev .env
+	build/user_api
