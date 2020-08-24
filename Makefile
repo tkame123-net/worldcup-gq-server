@@ -18,3 +18,6 @@ run-local: build-local
 run-linux: build
 	cp .env.dev .env
 	build/user_api
+
+deploy-dev:
+	git push heroku develop:master
