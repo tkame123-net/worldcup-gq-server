@@ -11,5 +11,7 @@ import (
 
 type Resolver struct {
 	competitions     []*model.Competition
+	players          []*model.Player
 	MongoCompetition adapter.MongodbCompetitionRepository
+	MongoPlayer      adapter.MongodbPlayerRepository
 }

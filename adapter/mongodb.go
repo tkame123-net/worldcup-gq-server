@@ -18,10 +18,8 @@ type MongodbCompetitionRepository interface {
 	GetByYear(ctx context.Context, year *int) (*domain.Competition, error)
 	GetAll(ctx context.Context) ([]*domain.Competition, error)
 	GetAllByCountry(ctx context.Context, country *string) ([]*domain.Competition, error)
-	//GetAllByPost(ctx context.Context, id *domain.PostID) ([]*domain.BlogPostComment, error)
-	//Get(ctx context.Context, id *domain.BlogPostCommentID) (*domain.BlogPostComment, error)
-	//Exists(ctx context.Context, id *domain.BlogPostCommentID) (bool, error)
-	//Insert(ctx context.Context, comment *domain.BlogPostComment) error
-	//Put(ctx context.Context, comment *domain.BlogPostComment) error
-	//Delete(ctx context.Context, id *domain.BlogPostCommentID) error
+}
+
+type MongodbPlayerRepository interface {
+	GetAll(ctx context.Context) ([]*domain.Player, error)
 }

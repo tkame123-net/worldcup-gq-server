@@ -10,8 +10,13 @@ type Competition {
   nextCompetition: Competition
 }
 
+type Player {
+  name: String!
+}
+
 type Query {
   allCompetition: [Competition]!
+  allPlayer: [Player]!
 }
 
 # type Mutation {

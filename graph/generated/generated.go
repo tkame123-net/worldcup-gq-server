@@ -50,8 +50,13 @@ type ComplexityRoot struct {
 		Year            func(childComplexity int) int
 	}
 
+	Player struct {
+		Name func(childComplexity int) int
+	}
+
 	Query struct {
 		AllCompetition func(childComplexity int) int
+		AllPlayer      func(childComplexity int) int
 	}
 }
 
@@ -61,6 +66,7 @@ type CompetitionResolver interface {
 }
 type QueryResolver interface {
 	AllCompetition(ctx context.Context) ([]*model.Competition, error)
+	AllPlayer(ctx context.Context) ([]*model.Player, error)
 }
 
 type executableSchema struct {
@@ -106,12 +112,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Competition.Year(childComplexity), true
 
+	case "Player.name":
+		if e.complexity.Player.Name == nil {
+			break
+		}
+
+		return e.complexity.Player.Name(childComplexity), true
+
 	case "Query.allCompetition":
 		if e.complexity.Query.AllCompetition == nil {
 			break
 		}
 
 		return e.complexity.Query.AllCompetition(childComplexity), true
+
+	case "Query.allPlayer":
+		if e.complexity.Query.AllPlayer == nil {
+			break
+		}
+
+		return e.complexity.Query.AllPlayer(childComplexity), true
 
 	}
 	return 0, false
@@ -175,8 +195,13 @@ type Competition {
   nextCompetition: Competition
 }
 
+type Player {
+  name: String!
+}
+
 type Query {
   allCompetition: [Competition]!
+  allPlayer: [Player]!
 }
 
 # type Mutation {
@@ -372,6 +397,40 @@ func (ec *executionContext) _Competition_nextCompetition(ctx context.Context, fi
 	return ec.marshalOCompetition2ᚖtkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐCompetition(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Player_name(ctx context.Context, field graphql.CollectedField, obj *model.Player) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Player",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_allCompetition(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -404,6 +463,40 @@ func (ec *executionContext) _Query_allCompetition(ctx context.Context, field gra
 	res := resTmp.([]*model.Competition)
 	fc.Result = res
 	return ec.marshalNCompetition2ᚕᚖtkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐCompetition(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_allPlayer(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().AllPlayer(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Player)
+	fc.Result = res
+	return ec.marshalNPlayer2ᚕᚖtkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐPlayer(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query___type(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1592,6 +1685,33 @@ func (ec *executionContext) _Competition(ctx context.Context, sel ast.SelectionS
 	return out
 }
 
+var playerImplementors = []string{"Player"}
+
+func (ec *executionContext) _Player(ctx context.Context, sel ast.SelectionSet, obj *model.Player) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, playerImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Player")
+		case "name":
+			out.Values[i] = ec._Player_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var queryImplementors = []string{"Query"}
 
 func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -1616,6 +1736,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_allCompetition(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "allPlayer":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_allPlayer(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -1933,6 +2067,43 @@ func (ec *executionContext) marshalNCompetition2ᚕᚖtkame123ᚑnetᚋworldcup�
 	return ret
 }
 
+func (ec *executionContext) marshalNPlayer2ᚕᚖtkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐPlayer(ctx context.Context, sel ast.SelectionSet, v []*model.Player) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOPlayer2ᚖtkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐPlayer(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.WrapErrorWithInputPath(ctx, err)
@@ -2206,6 +2377,13 @@ func (ec *executionContext) marshalOCompetition2ᚖtkame123ᚑnetᚋworldcupᚑg
 		return graphql.Null
 	}
 	return ec._Competition(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOPlayer2ᚖtkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐPlayer(ctx context.Context, sel ast.SelectionSet, v *model.Player) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Player(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {

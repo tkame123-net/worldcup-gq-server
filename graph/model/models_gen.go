@@ -8,3 +8,7 @@ type Competition struct {
 	PrevCompetition *Competition `json:"prevCompetition"`
 	NextCompetition *Competition `json:"nextCompetition"`
 }
+
+type Player struct {
+	Name string `json:"name"`
+}

@@ -66,6 +66,21 @@ func (r *queryResolver) AllCompetition(ctx context.Context) ([]*model.Competitio
 	return resItems, nil
 }
 
+func (r *queryResolver) AllPlayer(ctx context.Context) ([]*model.Player, error) {
+	ctx = context.Background()
+	res, err := r.MongoPlayer.GetAll(ctx)
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
+
+	resItems := make([]*model.Player, 0, len(res))
+	for _, item := range res {
+		resItems = append(resItems, ToPlayerResponse(item))
+	}
+
+	return resItems, nil
+}
+
 // Competition returns generated.CompetitionResolver implementation.
 func (r *Resolver) Competition() generated.CompetitionResolver { return &competitionResolver{r} }
 
