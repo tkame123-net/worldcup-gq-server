@@ -11,11 +11,10 @@ import (
 
 func NewClient(hostURL string, database string) adapter.MongoClient {
 	return func(ctx context.Context) (*adapter.MongoDBAPI, error) {
-		client, err := mongo.Connect(ctx, options.Client().ApplyURI(hostURL), options.Client().SetRetryWrites(false))
+		client, err := mongo.Connect(ctx, options.Client().ApplyURI(hostURL), options.Client().SetRetryWrites(false), options.Client().SetRetryReads(true))
 		if err != nil {
 			log.Fatalf("failed to open listener: %+v", err)
 		}
-
 		return &adapter.MongoDBAPI{
 			MongoDBHostURL: hostURL,
 			Database:       database,

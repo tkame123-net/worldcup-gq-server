@@ -1,11 +1,6 @@
-.PHONY: generate-wire gen test build run-local
+.PHONY: test build run-local
 
-generate-wire:
-	cd di && wire
-
-gen: generate-wire
-
-test: gen
+test:
 	echo "test tobe"
 #	cp .env.test .env
 #	ENV_FILE=/Volumes/SSD/rep/blog-server/.env go test ./...

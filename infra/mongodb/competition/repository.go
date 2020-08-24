@@ -36,6 +36,7 @@ func (r *repository) GetByYear(ctx context.Context, year *int) (*domain.Competit
 	e := col.FindOne(ctx, bson.M{"Year": year}).Decode(&entity)
 	if e != nil {
 		// todo: エラーハンドリング（Nodocだけ分岐させたい）
+		log.Printf("log: %v", e)
 		return nil, nil
 	}
 

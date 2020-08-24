@@ -6,6 +6,8 @@ import (
 	"os"
 	"tkame123-net/worldcup-gq-server/graph"
 	"tkame123-net/worldcup-gq-server/graph/generated"
+	"tkame123-net/worldcup-gq-server/infra/mongodb"
+	"tkame123-net/worldcup-gq-server/infra/mongodb/competition"
 	"tkame123-net/worldcup-gq-server/lib/env"
 
 	"github.com/99designs/gqlgen/graphql/handler"
@@ -25,7 +27,12 @@ func main() {
 		port = defaultPort
 	}
 
-	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
+	cl := mongodb.NewClient(os.Getenv("MONGODB_URI"), os.Getenv("MONGODB_DATABASE"))
+	repoC := competition.NewRepository(cl)
+
+	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{
+		MongoCompetition: repoC,
+	}}))
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)

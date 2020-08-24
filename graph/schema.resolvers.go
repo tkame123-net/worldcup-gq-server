@@ -6,12 +6,9 @@ package graph
 import (
 	"context"
 	"log"
-	"os"
 	"strconv"
 	"tkame123-net/worldcup-gq-server/graph/generated"
 	"tkame123-net/worldcup-gq-server/graph/model"
-	"tkame123-net/worldcup-gq-server/infra/mongodb"
-	"tkame123-net/worldcup-gq-server/infra/mongodb/competition"
 )
 
 func (r *competitionResolver) PrevCompetition(ctx context.Context, obj *model.Competition) (*model.Competition, error) {
@@ -22,12 +19,8 @@ func (r *competitionResolver) PrevCompetition(ctx context.Context, obj *model.Co
 		i = i - 4
 	}
 
-	// todo: to wire
-	cl := mongodb.NewClient(os.Getenv("MONGODB_URI"), os.Getenv("MONGODB_DATABASE"))
-	repo := competition.NewRepository(cl)
-
 	ctx = context.Background()
-	res, err := repo.GetByYear(ctx, &i)
+	res, err := r.MongoCompetition.GetByYear(ctx, &i)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
@@ -46,12 +39,8 @@ func (r *competitionResolver) NextCompetition(ctx context.Context, obj *model.Co
 		i = i + 4
 	}
 
-	// todo: to wire
-	cl := mongodb.NewClient(os.Getenv("MONGODB_URI"), os.Getenv("MONGODB_DATABASE"))
-	repo := competition.NewRepository(cl)
-
 	ctx = context.Background()
-	res, err := repo.GetByYear(ctx, &i)
+	res, err := r.MongoCompetition.GetByYear(ctx, &i)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
@@ -63,12 +52,8 @@ func (r *competitionResolver) NextCompetition(ctx context.Context, obj *model.Co
 }
 
 func (r *queryResolver) AllCompetition(ctx context.Context) ([]*model.Competition, error) {
-	// todo: to wire
-	cl := mongodb.NewClient(os.Getenv("MONGODB_URI"), os.Getenv("MONGODB_DATABASE"))
-	repo := competition.NewRepository(cl)
-
 	ctx = context.Background()
-	res, err := repo.GetAll(ctx)
+	res, err := r.MongoCompetition.GetAll(ctx)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
