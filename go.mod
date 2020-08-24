@@ -2,6 +2,8 @@ module tkame123-net/worldcup-gq-server
 
 go 1.14
 
+// +heroku goVersion go1.14
+
 require (
 	github.com/99designs/gqlgen v0.12.2
 	github.com/agnivade/levenshtein v1.1.0 // indirect
