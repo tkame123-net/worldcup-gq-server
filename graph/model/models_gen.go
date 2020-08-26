@@ -9,6 +9,10 @@ type Competition struct {
 	NextCompetition *Competition `json:"nextCompetition"`
 }
 
+type Match struct {
+	Stage string `json:"stage"`
+}
+
 type Player struct {
 	Name string `json:"name"`
 }

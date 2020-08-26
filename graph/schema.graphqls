@@ -10,12 +10,22 @@ type Competition {
   nextCompetition: Competition
 }
 
+type Match {
+#  year: String!
+  stage: String!
+#  roundId: Int!
+#  matchId: Int!
+#  homeTeamName: String!
+#  awayTeamName: String!
+}
+
 type Player {
   name: String!
 }
 
 type Query {
   allCompetition: [Competition]!
+  allMatch: [Match]!
   allPlayer: [Player]!
 }
 

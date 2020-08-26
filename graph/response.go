@@ -17,3 +17,9 @@ func ToPlayerResponse(entity *domain.Player) *model.Player {
 		Name: entity.Name,
 	}
 }
+
+func ToMatchResponse(entity *domain.Match) *model.Match {
+	return &model.Match{
+		Stage: entity.Stage,
+	}
+}

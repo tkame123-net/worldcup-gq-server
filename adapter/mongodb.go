@@ -23,3 +23,7 @@ type MongodbCompetitionRepository interface {
 type MongodbPlayerRepository interface {
 	GetAll(ctx context.Context) ([]*domain.Player, error)
 }
+
+type MongodbMatchRepository interface {
+	GetAll(ctx context.Context) ([]*domain.Match, error)
+}

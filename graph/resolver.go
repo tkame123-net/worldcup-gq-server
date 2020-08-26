@@ -14,4 +14,5 @@ type Resolver struct {
 	players          []*model.Player
 	MongoCompetition adapter.MongodbCompetitionRepository
 	MongoPlayer      adapter.MongodbPlayerRepository
+	MongoMatch       adapter.MongodbMatchRepository
 }
