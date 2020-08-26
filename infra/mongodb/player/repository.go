@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"log"
 	"time"
 	"tkame123-net/worldcup-gq-server/adapter"
@@ -32,13 +33,17 @@ func (r *repository) GetAll(ctx context.Context) ([]*domain.Player, error) {
 	defer c.Client.Disconnect(ctx)
 	col := c.Client.Database(c.Database).Collection(collection)
 
-	cur, err := col.Find(ctx, bson.M{})
+	groupStage := bson.D{
+		{"$group", bson.M{"_id": "$Player Name", "RoundList": bson.M{"$push": "$RoundID"}}},
+	}
+	cur, err := col.Aggregate(ctx, mongo.Pipeline{groupStage})
 	if err != nil {
 		return nil, fmt.Errorf("message: %w", err)
 	}
 
 	defer cur.Close(ctx)
 	for cur.Next(ctx) {
+		log.Printf("cur: %v", cur)
 		var i entity
 		err := cur.Decode(&i)
 		if err != nil {

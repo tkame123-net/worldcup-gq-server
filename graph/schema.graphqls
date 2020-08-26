@@ -21,6 +21,7 @@ type Match {
 
 type Player {
   name: String!
+  roundList: [Int]
 }
 
 type Query {

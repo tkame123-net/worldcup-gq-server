@@ -13,8 +13,14 @@ func ToCompetitionResponse(entity *domain.Competition) *model.Competition {
 }
 
 func ToPlayerResponse(entity *domain.Player) *model.Player {
+	list := make([]*int, 0, len(entity.RoundList))
+	for _, v := range entity.RoundList {
+		list = append(list, &v)
+	}
+
 	return &model.Player{
-		Name: entity.Name,
+		Name:      entity.Name,
+		RoundList: list,
 	}
 }
 
