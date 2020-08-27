@@ -55,8 +55,9 @@ type ComplexityRoot struct {
 	}
 
 	Player struct {
-		Name      func(childComplexity int) int
-		RoundList func(childComplexity int) int
+		MatchIDList func(childComplexity int) int
+		MatchList   func(childComplexity int) int
+		Name        func(childComplexity int) int
 	}
 
 	Query struct {
@@ -126,19 +127,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Match.Stage(childComplexity), true
 
+	case "Player.matchIDList":
+		if e.complexity.Player.MatchIDList == nil {
+			break
+		}
+
+		return e.complexity.Player.MatchIDList(childComplexity), true
+
+	case "Player.matchList":
+		if e.complexity.Player.MatchList == nil {
+			break
+		}
+
+		return e.complexity.Player.MatchList(childComplexity), true
+
 	case "Player.name":
 		if e.complexity.Player.Name == nil {
 			break
 		}
 
 		return e.complexity.Player.Name(childComplexity), true
-
-	case "Player.roundList":
-		if e.complexity.Player.RoundList == nil {
-			break
-		}
-
-		return e.complexity.Player.RoundList(childComplexity), true
 
 	case "Query.allCompetition":
 		if e.complexity.Query.AllCompetition == nil {
@@ -234,7 +242,8 @@ type Match {
 
 type Player {
   name: String!
-  roundList: [Int]
+  matchIDList: [Int]
+  matchList: [Match]
 }
 
 type Query {
@@ -504,7 +513,7 @@ func (ec *executionContext) _Player_name(ctx context.Context, field graphql.Coll
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Player_roundList(ctx context.Context, field graphql.CollectedField, obj *model.Player) (ret graphql.Marshaler) {
+func (ec *executionContext) _Player_matchIDList(ctx context.Context, field graphql.CollectedField, obj *model.Player) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -521,7 +530,7 @@ func (ec *executionContext) _Player_roundList(ctx context.Context, field graphql
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.RoundList, nil
+		return obj.MatchIDList, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -533,6 +542,37 @@ func (ec *executionContext) _Player_roundList(ctx context.Context, field graphql
 	res := resTmp.([]*int)
 	fc.Result = res
 	return ec.marshalOInt2ᚕᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Player_matchList(ctx context.Context, field graphql.CollectedField, obj *model.Player) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Player",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MatchList, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Match)
+	fc.Result = res
+	return ec.marshalOMatch2ᚕᚖtkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐMatch(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_allCompetition(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -1866,8 +1906,10 @@ func (ec *executionContext) _Player(ctx context.Context, sel ast.SelectionSet, o
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "roundList":
-			out.Values[i] = ec._Player_roundList(ctx, field, obj)
+		case "matchIDList":
+			out.Values[i] = ec._Player_matchIDList(ctx, field, obj)
+		case "matchList":
+			out.Values[i] = ec._Player_matchList(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2646,6 +2688,46 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 		return graphql.Null
 	}
 	return graphql.MarshalInt(*v)
+}
+
+func (ec *executionContext) marshalOMatch2ᚕᚖtkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐMatch(ctx context.Context, sel ast.SelectionSet, v []*model.Match) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOMatch2ᚖtkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐMatch(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
 }
 
 func (ec *executionContext) marshalOMatch2ᚖtkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐMatch(ctx context.Context, sel ast.SelectionSet, v *model.Match) graphql.Marshaler {

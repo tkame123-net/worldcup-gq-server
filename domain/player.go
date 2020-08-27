@@ -3,6 +3,7 @@ package domain
 type PlayerID string
 
 type Player struct {
-	Name      string
-	RoundList []int
+	Name        string
+	MatchIDList []int
+	MatchList   []Match
 }

@@ -34,9 +34,12 @@ func (r *repository) GetAll(ctx context.Context) ([]*domain.Player, error) {
 	col := c.Client.Database(c.Database).Collection(collection)
 
 	groupStage := bson.D{
-		{"$group", bson.M{"_id": "$Player Name", "RoundList": bson.M{"$push": "$RoundID"}}},
+		{"$group", bson.M{"_id": "$Player Name", "MatchIDList": bson.M{"$push": "$MatchID"}}},
 	}
-	cur, err := col.Aggregate(ctx, mongo.Pipeline{groupStage})
+	lookupStage := bson.D{
+		{"$lookup", bson.M{"from": "matches", "localField": "MatchIDList", "foreignField": "MatchID", "as": "MatchList"}},
+	}
+	cur, err := col.Aggregate(ctx, mongo.Pipeline{groupStage, lookupStage})
 	if err != nil {
 		return nil, fmt.Errorf("message: %w", err)
 	}

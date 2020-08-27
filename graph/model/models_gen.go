@@ -14,6 +14,7 @@ type Match struct {
 }
 
 type Player struct {
-	Name      string `json:"name"`
-	RoundList []*int `json:"roundList"`
+	Name        string   `json:"name"`
+	MatchIDList []*int   `json:"matchIDList"`
+	MatchList   []*Match `json:"matchList"`
 }
