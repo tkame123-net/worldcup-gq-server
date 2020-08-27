@@ -13,6 +13,8 @@ type Competition {
 type Match {
 #  year: String!
   stage: String!
+  stadium: String!
+  city: String!
 #  roundId: Int!
 #  matchId: Int!
 #  homeTeamName: String!

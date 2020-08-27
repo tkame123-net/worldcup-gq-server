@@ -46,7 +46,6 @@ func (r *repository) GetAll(ctx context.Context) ([]*domain.Player, error) {
 
 	defer cur.Close(ctx)
 	for cur.Next(ctx) {
-		log.Printf("cur: %v", cur)
 		var i entity
 		err := cur.Decode(&i)
 		if err != nil {

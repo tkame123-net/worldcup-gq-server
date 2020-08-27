@@ -22,7 +22,7 @@ func ToPlayerResponse(entity *domain.Player) *model.Player {
 	mList := make([]*model.Match, 0, len(entity.MatchList))
 	for _, v := range entity.MatchList {
 		x := v
-		mList = append(mList, &model.Match{Stage: x.Stage})
+		mList = append(mList, &model.Match{Stage: x.Stage, Stadium: x.Stadium, City: x.City})
 	}
 
 	return &model.Player{

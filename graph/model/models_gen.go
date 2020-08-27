@@ -10,7 +10,9 @@ type Competition struct {
 }
 
 type Match struct {
-	Stage string `json:"stage"`
+	Stage   string `json:"stage"`
+	Stadium string `json:"stadium"`
+	City    string `json:"city"`
 }
 
 type Player struct {

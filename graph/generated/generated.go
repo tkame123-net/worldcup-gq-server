@@ -51,7 +51,9 @@ type ComplexityRoot struct {
 	}
 
 	Match struct {
-		Stage func(childComplexity int) int
+		City    func(childComplexity int) int
+		Stadium func(childComplexity int) int
+		Stage   func(childComplexity int) int
 	}
 
 	Player struct {
@@ -119,6 +121,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Competition.Year(childComplexity), true
+
+	case "Match.city":
+		if e.complexity.Match.City == nil {
+			break
+		}
+
+		return e.complexity.Match.City(childComplexity), true
+
+	case "Match.stadium":
+		if e.complexity.Match.Stadium == nil {
+			break
+		}
+
+		return e.complexity.Match.Stadium(childComplexity), true
 
 	case "Match.stage":
 		if e.complexity.Match.Stage == nil {
@@ -234,6 +250,8 @@ type Competition {
 type Match {
 #  year: String!
   stage: String!
+  stadium: String!
+  city: String!
 #  roundId: Int!
 #  matchId: Int!
 #  homeTeamName: String!
@@ -463,6 +481,74 @@ func (ec *executionContext) _Match_stage(ctx context.Context, field graphql.Coll
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return obj.Stage, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Match_stadium(ctx context.Context, field graphql.CollectedField, obj *model.Match) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Match",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Stadium, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Match_city(ctx context.Context, field graphql.CollectedField, obj *model.Match) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Match",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.City, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1876,6 +1962,16 @@ func (ec *executionContext) _Match(ctx context.Context, sel ast.SelectionSet, ob
 			out.Values[i] = graphql.MarshalString("Match")
 		case "stage":
 			out.Values[i] = ec._Match_stage(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "stadium":
+			out.Values[i] = ec._Match_stadium(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "city":
+			out.Values[i] = ec._Match_city(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
