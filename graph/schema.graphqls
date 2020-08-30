@@ -11,7 +11,7 @@ type Competition {
 }
 
 type Match {
-#  year: String!
+  year: Int!
   stage: String!
   stadium: String!
   city: String!

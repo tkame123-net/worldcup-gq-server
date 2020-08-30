@@ -10,6 +10,7 @@ type Competition struct {
 }
 
 type Match struct {
+	Year    int    `json:"year"`
 	Stage   string `json:"stage"`
 	Stadium string `json:"stadium"`
 	City    string `json:"city"`

@@ -11,6 +11,7 @@ type entity struct {
 }
 
 type matchEntity struct {
+	Year    int    `bson:"Year" json:"Year"`
 	Stage   string `bson:"Stage" json:"Stage"`
 	Stadium string `bson:"Stadium" json:"Stadium"`
 	City    string `bson:"City" json:"City"`
@@ -21,7 +22,7 @@ const collection = "players"
 func (e *entity) toDomain() *domain.Player {
 	list := make([]domain.Match, 0, len(e.MatchList))
 	for _, v := range e.MatchList {
-		list = append(list, domain.Match{Stage: v.Stage, Stadium: v.Stadium, City: v.City})
+		list = append(list, domain.Match{Year: v.Year, Stage: v.Stage, Stadium: v.Stadium, City: v.City})
 	}
 
 	return &domain.Player{
