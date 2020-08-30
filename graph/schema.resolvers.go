@@ -99,7 +99,7 @@ func (r *queryResolver) AllPlayer(ctx context.Context, filter model.Filter) ([]*
 	}
 
 	if filter.Regex != "" {
-		res, err := r.MongoPlayer.GetAllByPlayerName(ctx, filter.Eq, domain.FilterType_REGEX)
+		res, err := r.MongoPlayer.GetAllByPlayerName(ctx, filter.Regex, domain.FilterType_REGEX)
 		if err != nil {
 			log.Fatalf("error: %v", err)
 		}
