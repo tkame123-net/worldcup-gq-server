@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"log"
 	"time"
@@ -67,7 +68,7 @@ func (r *repository) GetAll(ctx context.Context) ([]*domain.Player, error) {
 	return items, nil
 }
 
-func (r *repository) GetAllByPlayerName(ctx context.Context, playerName string) ([]*domain.Player, error) {
+func (r *repository) GetAllByPlayerName(ctx context.Context, playerName string, filterType domain.FilterType) ([]*domain.Player, error) {
 	var entities []entity
 
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
@@ -79,8 +80,21 @@ func (r *repository) GetAllByPlayerName(ctx context.Context, playerName string) 
 	defer c.Client.Disconnect(ctx)
 	col := c.Client.Database(c.Database).Collection(collection)
 
-	matchStage := bson.D{
-		{"$match", bson.M{"Player Name": playerName}},
+	var matchStage primitive.D
+	switch filterType {
+	case domain.FilterType_EQ:
+		matchStage = bson.D{
+			{"$match", bson.M{"Player Name": playerName}},
+		}
+	case domain.FilterType_REGEX:
+		selector := primitive.Regex{Pattern: playerName}
+		matchStage = bson.D{
+			{"$match", bson.M{"Player Name": selector}},
+		}
+	default:
+		matchStage = bson.D{
+			{"$match", bson.M{"Player Name": playerName}},
+		}
 	}
 	groupStage := bson.D{
 		{"$group", bson.M{"_id": "$Player Name", "MatchIDList": bson.M{"$push": "$MatchID"}}},

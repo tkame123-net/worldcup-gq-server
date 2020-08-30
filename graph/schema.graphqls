@@ -22,7 +22,8 @@ type Match {
 }
 
 input Filter {
-  eq: String!
+  eq: String! = ""
+  regex: String! = ""
 }
 
 type Player {

@@ -26,5 +26,5 @@ type MongodbMatchRepository interface {
 
 type MongodbPlayerRepository interface {
 	GetAll(ctx context.Context) ([]*domain.Player, error)
-	GetAllByPlayerName(ctx context.Context, playerName string) ([]*domain.Player, error)
+	GetAllByPlayerName(ctx context.Context, playerName string, filterType domain.FilterType) ([]*domain.Player, error)
 }

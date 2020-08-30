@@ -264,7 +264,8 @@ type Match {
 }
 
 input Filter {
-  eq: String!
+  eq: String! = ""
+  regex: String! = ""
 }
 
 type Player {
@@ -1931,6 +1932,14 @@ func (ec *executionContext) unmarshalInputFilter(ctx context.Context, obj interf
 
 			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("eq"))
 			it.Eq, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "regex":
+			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("regex"))
+			it.Regex, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}

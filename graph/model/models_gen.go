@@ -10,7 +10,8 @@ type Competition struct {
 }
 
 type Filter struct {
-	Eq string `json:"eq"`
+	Eq    string `json:"eq"`
+	Regex string `json:"regex"`
 }
 
 type Match struct {

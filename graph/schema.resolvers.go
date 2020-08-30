@@ -7,6 +7,7 @@ import (
 	"context"
 	"log"
 	"strconv"
+	"tkame123-net/worldcup-gq-server/domain"
 	"tkame123-net/worldcup-gq-server/graph/generated"
 	"tkame123-net/worldcup-gq-server/graph/model"
 )
@@ -85,7 +86,7 @@ func (r *queryResolver) AllPlayer(ctx context.Context, filter model.Filter) ([]*
 	ctx = context.Background()
 
 	if filter.Eq != "" {
-		res, err := r.MongoPlayer.GetAllByPlayerName(ctx, filter.Eq)
+		res, err := r.MongoPlayer.GetAllByPlayerName(ctx, filter.Eq, domain.FilterType_EQ)
 		if err != nil {
 			log.Fatalf("error: %v", err)
 		}
@@ -97,8 +98,8 @@ func (r *queryResolver) AllPlayer(ctx context.Context, filter model.Filter) ([]*
 		return resItems, nil
 	}
 
-	if filter.Eq == "" {
-		res, err := r.MongoPlayer.GetAll(ctx)
+	if filter.Regex != "" {
+		res, err := r.MongoPlayer.GetAllByPlayerName(ctx, filter.Eq, domain.FilterType_REGEX)
 		if err != nil {
 			log.Fatalf("error: %v", err)
 		}
@@ -110,7 +111,16 @@ func (r *queryResolver) AllPlayer(ctx context.Context, filter model.Filter) ([]*
 		return resItems, nil
 	}
 
-	return nil, nil
+	res, err := r.MongoPlayer.GetAll(ctx)
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
+	resItems := make([]*model.Player, 0, len(res))
+	for _, item := range res {
+		resItems = append(resItems, ToPlayerResponse(item))
+	}
+
+	return resItems, nil
 }
 
 // Competition returns generated.CompetitionResolver implementation.
