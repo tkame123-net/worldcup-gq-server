@@ -20,10 +20,11 @@ type MongodbCompetitionRepository interface {
 	GetAllByCountry(ctx context.Context, country *string) ([]*domain.Competition, error)
 }
 
-type MongodbPlayerRepository interface {
-	GetAll(ctx context.Context) ([]*domain.Player, error)
-}
-
 type MongodbMatchRepository interface {
 	GetAll(ctx context.Context) ([]*domain.Match, error)
+}
+
+type MongodbPlayerRepository interface {
+	GetAll(ctx context.Context) ([]*domain.Player, error)
+	GetAllbyPlayerName(ctx context.Context, playerName string) ([]*domain.Player, error)
 }

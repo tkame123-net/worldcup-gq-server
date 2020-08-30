@@ -9,6 +9,10 @@ type Competition struct {
 	NextCompetition *Competition `json:"nextCompetition"`
 }
 
+type Filter struct {
+	Eq string `json:"eq"`
+}
+
 type Match struct {
 	Year    int    `json:"year"`
 	Stage   string `json:"stage"`
@@ -17,7 +21,6 @@ type Match struct {
 }
 
 type Player struct {
-	Name        string   `json:"name"`
-	MatchIDList []*int   `json:"matchIDList"`
-	MatchList   []*Match `json:"matchList"`
+	Name      string   `json:"name"`
+	MatchList []*Match `json:"matchList"`
 }

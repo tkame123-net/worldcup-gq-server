@@ -21,16 +21,19 @@ type Match {
 #  awayTeamName: String!
 }
 
+input Filter {
+  eq: String!
+}
+
 type Player {
   name: String!
-  matchIDList: [Int]
   matchList: [Match]
 }
 
 type Query {
   allCompetition: [Competition]!
   allMatch: [Match]!
-  allPlayer: [Player]!
+  allPlayer(filter: Filter! = {}): [Player]!
 }
 
 # type Mutation {

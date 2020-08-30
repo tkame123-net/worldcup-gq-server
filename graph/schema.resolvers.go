@@ -81,19 +81,36 @@ func (r *queryResolver) AllMatch(ctx context.Context) ([]*model.Match, error) {
 	return resItems, nil
 }
 
-func (r *queryResolver) AllPlayer(ctx context.Context) ([]*model.Player, error) {
+func (r *queryResolver) AllPlayer(ctx context.Context, filter model.Filter) ([]*model.Player, error) {
 	ctx = context.Background()
-	res, err := r.MongoPlayer.GetAll(ctx)
-	if err != nil {
-		log.Fatalf("error: %v", err)
+
+	if filter.Eq != "" {
+		res, err := r.MongoPlayer.GetAllbyPlayerName(ctx, filter.Eq)
+		if err != nil {
+			log.Fatalf("error: %v", err)
+		}
+		resItems := make([]*model.Player, 0, len(res))
+		for _, item := range res {
+			resItems = append(resItems, ToPlayerResponse(item))
+		}
+
+		return resItems, nil
 	}
 
-	resItems := make([]*model.Player, 0, len(res))
-	for _, item := range res {
-		resItems = append(resItems, ToPlayerResponse(item))
+	if filter.Eq == "" {
+		res, err := r.MongoPlayer.GetAll(ctx)
+		if err != nil {
+			log.Fatalf("error: %v", err)
+		}
+		resItems := make([]*model.Player, 0, len(res))
+		for _, item := range res {
+			resItems = append(resItems, ToPlayerResponse(item))
+		}
+
+		return resItems, nil
 	}
 
-	return resItems, nil
+	return nil, nil
 }
 
 // Competition returns generated.CompetitionResolver implementation.

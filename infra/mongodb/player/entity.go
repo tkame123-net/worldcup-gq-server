@@ -5,9 +5,8 @@ import (
 )
 
 type entity struct {
-	ID          string        `bson:"_id,omitempty"`
-	MatchIDList []int         `bson:"MatchIDList" json:"MatchIDList"`
-	MatchList   []matchEntity `bson:"MatchList" json:"MatchList"`
+	ID        string        `bson:"_id,omitempty"`
+	MatchList []matchEntity `bson:"MatchList" json:"MatchList"`
 }
 
 type matchEntity struct {
@@ -26,15 +25,13 @@ func (e *entity) toDomain() *domain.Player {
 	}
 
 	return &domain.Player{
-		Name:        e.ID,
-		MatchIDList: e.MatchIDList,
-		MatchList:   list,
+		Name:      e.ID,
+		MatchList: list,
 	}
 }
 
 func toEntity(from *domain.Player) *entity {
 	return &entity{
-		ID:          from.Name,
-		MatchIDList: from.MatchIDList,
+		ID: from.Name,
 	}
 }

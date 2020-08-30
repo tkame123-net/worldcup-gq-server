@@ -13,12 +13,6 @@ func ToCompetitionResponse(entity *domain.Competition) *model.Competition {
 }
 
 func ToPlayerResponse(entity *domain.Player) *model.Player {
-	idList := make([]*int, 0, len(entity.MatchIDList))
-	for _, v := range entity.MatchIDList {
-		x := v
-		idList = append(idList, &x)
-	}
-
 	mList := make([]*model.Match, 0, len(entity.MatchList))
 	for _, v := range entity.MatchList {
 		x := v
@@ -26,9 +20,8 @@ func ToPlayerResponse(entity *domain.Player) *model.Player {
 	}
 
 	return &model.Player{
-		Name:        entity.Name,
-		MatchIDList: idList,
-		MatchList:   mList,
+		Name:      entity.Name,
+		MatchList: mList,
 	}
 }
 
