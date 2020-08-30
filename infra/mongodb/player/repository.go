@@ -67,7 +67,7 @@ func (r *repository) GetAll(ctx context.Context) ([]*domain.Player, error) {
 	return items, nil
 }
 
-func (r *repository) GetAllbyPlayerName(ctx context.Context, playerName string) ([]*domain.Player, error) {
+func (r *repository) GetAllByPlayerName(ctx context.Context, playerName string) ([]*domain.Player, error) {
 	var entities []entity
 
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)

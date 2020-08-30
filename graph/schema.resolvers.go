@@ -85,7 +85,7 @@ func (r *queryResolver) AllPlayer(ctx context.Context, filter model.Filter) ([]*
 	ctx = context.Background()
 
 	if filter.Eq != "" {
-		res, err := r.MongoPlayer.GetAllbyPlayerName(ctx, filter.Eq)
+		res, err := r.MongoPlayer.GetAllByPlayerName(ctx, filter.Eq)
 		if err != nil {
 			log.Fatalf("error: %v", err)
 		}
