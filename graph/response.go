@@ -27,6 +27,9 @@ func ToPlayerResponse(entity *domain.Player) *model.Player {
 
 func ToMatchResponse(entity *domain.Match) *model.Match {
 	return &model.Match{
-		Stage: entity.Stage,
+		Year:    entity.Year,
+		Stage:   entity.Stage,
+		Stadium: entity.Stadium,
+		City:    entity.City,
 	}
 }
