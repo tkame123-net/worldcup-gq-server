@@ -33,7 +33,7 @@ type Player {
 
 type Query {
   allCompetition: [Competition]!
-  allMatch: [Match]!
+  allMatch(filterYear: Filter! = {}): [Match]!
   allPlayer(filterPlayerName: Filter! = {}): [Player]!
 }
 
