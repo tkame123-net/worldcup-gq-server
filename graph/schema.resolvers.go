@@ -67,8 +67,36 @@ func (r *queryResolver) AllCompetition(ctx context.Context) ([]*model.Competitio
 	return resItems, nil
 }
 
-func (r *queryResolver) AllMatch(ctx context.Context) ([]*model.Match, error) {
+func (r *queryResolver) AllMatch(ctx context.Context, filterYear model.Filter) ([]*model.Match, error) {
 	ctx = context.Background()
+	if filterYear.Eq != "" {
+		res, err := r.MongoMatch.GetAllByYear(ctx, filterYear.Eq, domain.FilterType_EQ)
+		if err != nil {
+			log.Fatalf("error: %v", err)
+		}
+
+		resItems := make([]*model.Match, 0, len(res))
+		for _, item := range res {
+			resItems = append(resItems, ToMatchResponse(item))
+		}
+
+		return resItems, nil
+	}
+
+	if filterYear.Regex != "" {
+		res, err := r.MongoMatch.GetAllByYear(ctx, filterYear.Regex, domain.FilterType_REGEX)
+		if err != nil {
+			log.Fatalf("error: %v", err)
+		}
+
+		resItems := make([]*model.Match, 0, len(res))
+		for _, item := range res {
+			resItems = append(resItems, ToMatchResponse(item))
+		}
+
+		return resItems, nil
+	}
+
 	res, err := r.MongoMatch.GetAll(ctx)
 	if err != nil {
 		log.Fatalf("error: %v", err)
