@@ -65,7 +65,7 @@ type ComplexityRoot struct {
 	Query struct {
 		AllCompetition func(childComplexity int) int
 		AllMatch       func(childComplexity int) int
-		AllPlayer      func(childComplexity int, filter model.Filter) int
+		AllPlayer      func(childComplexity int, filterPlayerName model.Filter) int
 	}
 }
 
@@ -76,7 +76,7 @@ type CompetitionResolver interface {
 type QueryResolver interface {
 	AllCompetition(ctx context.Context) ([]*model.Competition, error)
 	AllMatch(ctx context.Context) ([]*model.Match, error)
-	AllPlayer(ctx context.Context, filter model.Filter) ([]*model.Player, error)
+	AllPlayer(ctx context.Context, filterPlayerName model.Filter) ([]*model.Player, error)
 }
 
 type executableSchema struct {
@@ -188,7 +188,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.AllPlayer(childComplexity, args["filter"].(model.Filter)), true
+		return e.complexity.Query.AllPlayer(childComplexity, args["filterPlayerName"].(model.Filter)), true
 
 	}
 	return 0, false
@@ -276,7 +276,7 @@ type Player {
 type Query {
   allCompetition: [Competition]!
   allMatch: [Match]!
-  allPlayer(filter: Filter! = {}): [Player]!
+  allPlayer(filterPlayerName: Filter! = {}): [Player]!
 }
 
 # type Mutation {
@@ -308,14 +308,14 @@ func (ec *executionContext) field_Query_allPlayer_args(ctx context.Context, rawA
 	var err error
 	args := map[string]interface{}{}
 	var arg0 model.Filter
-	if tmp, ok := rawArgs["filter"]; ok {
-		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("filter"))
+	if tmp, ok := rawArgs["filterPlayerName"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("filterPlayerName"))
 		arg0, err = ec.unmarshalNFilter2tkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐFilter(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["filter"] = arg0
+	args["filterPlayerName"] = arg0
 	return args, nil
 }
 
@@ -780,7 +780,7 @@ func (ec *executionContext) _Query_allPlayer(ctx context.Context, field graphql.
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().AllPlayer(rctx, args["filter"].(model.Filter))
+		return ec.resolvers.Query().AllPlayer(rctx, args["filterPlayerName"].(model.Filter))
 	})
 	if err != nil {
 		ec.Error(ctx, err)

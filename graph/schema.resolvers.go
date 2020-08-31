@@ -82,11 +82,11 @@ func (r *queryResolver) AllMatch(ctx context.Context) ([]*model.Match, error) {
 	return resItems, nil
 }
 
-func (r *queryResolver) AllPlayer(ctx context.Context, filter model.Filter) ([]*model.Player, error) {
+func (r *queryResolver) AllPlayer(ctx context.Context, filterPlayerName model.Filter) ([]*model.Player, error) {
 	ctx = context.Background()
 
-	if filter.Eq != "" {
-		res, err := r.MongoPlayer.GetAllByPlayerName(ctx, filter.Eq, domain.FilterType_EQ)
+	if filterPlayerName.Eq != "" {
+		res, err := r.MongoPlayer.GetAllByPlayerName(ctx, filterPlayerName.Eq, domain.FilterType_EQ)
 		if err != nil {
 			log.Fatalf("error: %v", err)
 		}
@@ -98,8 +98,8 @@ func (r *queryResolver) AllPlayer(ctx context.Context, filter model.Filter) ([]*
 		return resItems, nil
 	}
 
-	if filter.Regex != "" {
-		res, err := r.MongoPlayer.GetAllByPlayerName(ctx, filter.Regex, domain.FilterType_REGEX)
+	if filterPlayerName.Regex != "" {
+		res, err := r.MongoPlayer.GetAllByPlayerName(ctx, filterPlayerName.Regex, domain.FilterType_REGEX)
 		if err != nil {
 			log.Fatalf("error: %v", err)
 		}

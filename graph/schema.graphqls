@@ -34,7 +34,7 @@ type Player {
 type Query {
   allCompetition: [Competition]!
   allMatch: [Match]!
-  allPlayer(filter: Filter! = {}): [Player]!
+  allPlayer(filterPlayerName: Filter! = {}): [Player]!
 }
 
 # type Mutation {
