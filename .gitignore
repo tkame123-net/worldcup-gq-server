@@ -184,3 +184,6 @@ $RECYCLE.BIN/
 /build/
 .env.dev
 .env
+
+/type/
+/node_modules/

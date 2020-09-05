@@ -1,0 +1,30 @@
+{
+  "name": "worldcup-gq-server",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "dependencies": {
+    "graphql": "^15.3.0"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^1.17.8",
+    "@graphql-codegen/typescript": "^1.17.9"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "generate": "graphql-codegen"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tkame123-net/worldcup-gq-server.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tkame123-net/worldcup-gq-server/issues"
+  },
+  "homepage": "https://github.com/tkame123-net/worldcup-gq-server#readme"
+}

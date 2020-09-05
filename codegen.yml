@@ -1,0 +1,5 @@
+schema: ./graph/schema.graphqls
+generates:
+  ./type/types.d.ts:
+    plugins:
+      - typescript
