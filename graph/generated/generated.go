@@ -54,6 +54,7 @@ type ComplexityRoot struct {
 
 	Match struct {
 		City    func(childComplexity int) int
+		ID      func(childComplexity int) int
 		Stadium func(childComplexity int) int
 		Stage   func(childComplexity int) int
 		Year    func(childComplexity int) int
@@ -137,6 +138,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Match.City(childComplexity), true
+
+	case "Match.id":
+		if e.complexity.Match.ID == nil {
+			break
+		}
+
+		return e.complexity.Match.ID(childComplexity), true
 
 	case "Match.stadium":
 		if e.complexity.Match.Stadium == nil {
@@ -272,7 +280,8 @@ type Competition implements Node{
   nextCompetition: Competition
 }
 
-type Match {
+type Match implements Node{
+  id: ID!
   year: Int!
   stage: String!
   stadium: String!
@@ -549,6 +558,40 @@ func (ec *executionContext) _Competition_nextCompetition(ctx context.Context, fi
 	res := resTmp.(*model.Competition)
 	fc.Result = res
 	return ec.marshalOCompetition2ᚖtkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐCompetition(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Match_id(ctx context.Context, field graphql.CollectedField, obj *model.Match) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Match",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Match_year(ctx context.Context, field graphql.CollectedField, obj *model.Match) (ret graphql.Marshaler) {
@@ -2031,6 +2074,13 @@ func (ec *executionContext) _Node(ctx context.Context, sel ast.SelectionSet, obj
 			return graphql.Null
 		}
 		return ec._Competition(ctx, sel, obj)
+	case model.Match:
+		return ec._Match(ctx, sel, &obj)
+	case *model.Match:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._Match(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -2099,7 +2149,7 @@ func (ec *executionContext) _Competition(ctx context.Context, sel ast.SelectionS
 	return out
 }
 
-var matchImplementors = []string{"Match"}
+var matchImplementors = []string{"Match", "Node"}
 
 func (ec *executionContext) _Match(ctx context.Context, sel ast.SelectionSet, obj *model.Match) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, matchImplementors)
@@ -2110,6 +2160,11 @@ func (ec *executionContext) _Match(ctx context.Context, sel ast.SelectionSet, ob
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Match")
+		case "id":
+			out.Values[i] = ec._Match_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "year":
 			out.Values[i] = ec._Match_year(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
