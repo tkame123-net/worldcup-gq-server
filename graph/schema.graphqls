@@ -2,8 +2,13 @@
 #
 # https://gqlgen.com/getting-started/
 
-type Competition {
-  id: String
+interface Node {
+  # The ID of the object.
+  id: ID!
+}
+
+type Competition implements Node{
+  id: ID!
   year: String!
   country: String!
 

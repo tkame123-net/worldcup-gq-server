@@ -10,7 +10,7 @@ import (
 func ToCompetitionResponse(entity *domain.Competition) *model.Competition {
 	id := ToGlobalID("01", "Competition", string(entity.ID))
 	return &model.Competition{
-		ID:      &id,
+		ID:      id,
 		Year:    entity.Year,
 		Country: entity.Country,
 	}

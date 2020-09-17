@@ -2,13 +2,19 @@
 
 package model
 
+type Node interface {
+	IsNode()
+}
+
 type Competition struct {
-	ID              *string      `json:"id"`
+	ID              string       `json:"id"`
 	Year            string       `json:"year"`
 	Country         string       `json:"country"`
 	PrevCompetition *Competition `json:"prevCompetition"`
 	NextCompetition *Competition `json:"nextCompetition"`
 }
+
+func (Competition) IsNode() {}
 
 type Filter struct {
 	Eq    string `json:"eq"`
