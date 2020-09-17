@@ -1,12 +1,16 @@
 package graph
 
 import (
+	b64 "encoding/base64"
+	"strings"
 	"tkame123-net/worldcup-gq-server/domain"
 	"tkame123-net/worldcup-gq-server/graph/model"
 )
 
 func ToCompetitionResponse(entity *domain.Competition) *model.Competition {
+	id := ToGlobalID("01", "Competition", string(entity.ID))
 	return &model.Competition{
+		ID:      &id,
 		Year:    entity.Year,
 		Country: entity.Country,
 	}
@@ -32,4 +36,12 @@ func ToMatchResponse(entity *domain.Match) *model.Match {
 		Stadium: entity.Stadium,
 		City:    entity.City,
 	}
+}
+
+func ToGlobalID(verStr string, entityName string, id string) string {
+	idSlices := []string{verStr, entityName, id}
+	idStr := strings.Join(idSlices, ":")
+	idEncode := b64.StdEncoding.EncodeToString([]byte(idStr))
+
+	return idEncode
 }

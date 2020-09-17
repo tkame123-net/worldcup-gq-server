@@ -3,6 +3,7 @@
 # https://gqlgen.com/getting-started/
 
 type Competition {
+  id: String
   year: String!
   country: String!
 
