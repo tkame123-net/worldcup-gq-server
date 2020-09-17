@@ -22,11 +22,14 @@ type Filter struct {
 }
 
 type Match struct {
+	ID      string `json:"id"`
 	Year    int    `json:"year"`
 	Stage   string `json:"stage"`
 	Stadium string `json:"stadium"`
 	City    string `json:"city"`
 }
+
+func (Match) IsNode() {}
 
 type Player struct {
 	Name      string   `json:"name"`

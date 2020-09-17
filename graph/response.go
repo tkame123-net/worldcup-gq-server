@@ -30,7 +30,9 @@ func ToPlayerResponse(entity *domain.Player) *model.Player {
 }
 
 func ToMatchResponse(entity *domain.Match) *model.Match {
+	id := ToGlobalID("01", "Match", string(entity.ID))
 	return &model.Match{
+		ID:      id,
 		Year:    entity.Year,
 		Stage:   entity.Stage,
 		Stadium: entity.Stadium,

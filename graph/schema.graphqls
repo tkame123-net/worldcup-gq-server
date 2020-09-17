@@ -16,7 +16,8 @@ type Competition implements Node{
   nextCompetition: Competition
 }
 
-type Match {
+type Match implements Node{
+  id: ID!
   year: Int!
   stage: String!
   stadium: String!
