@@ -7,13 +7,27 @@ interface Node {
   id: ID!
 }
 
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
 type Competition implements Node{
   id: ID!
   year: String!
   country: String!
+}
 
-  prevCompetition: Competition
-  nextCompetition: Competition
+type CompetitionConnection{
+  edges: [Competition]
+  pageInfo: PageInfo!
+}
+
+type CompetitionEdge {
+  cursor: String!
+  node: Competition
 }
 
 type Match implements Node{
@@ -42,6 +56,7 @@ type Query {
   allCompetition: [Competition]!
   allMatch(filterYear: Filter! = {}): [Match]!
   allPlayer(filterPlayerName: Filter! = {}): [Player]!
+  node(id: ID!): Node
 }
 
 # type Mutation {

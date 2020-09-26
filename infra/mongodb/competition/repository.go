@@ -131,3 +131,26 @@ func (r *repository) GetAllByCountry(ctx context.Context, country *string) ([]*d
 
 	return items, nil
 }
+
+func (r *repository) Exists(ctx context.Context, id *domain.CompetitionID) (bool, error) {
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+	c, err := r.client(ctx)
+	if err != nil {
+		return false, fmt.Errorf("message: %w", err)
+	}
+	defer c.Client.Disconnect(ctx)
+	col := c.Client.Database(c.Database).Collection(collection)
+	objectID, _ := primitive.ObjectIDFromHex(string(*id))
+
+	i, err := col.CountDocuments(ctx, bson.M{"_id": objectID})
+	if err != nil {
+		return false, fmt.Errorf("message: %w", err)
+	}
+
+	log.Println("[info] infra/mongodb/Competition/Exists")
+	log.Println("[info] ", id)
+	log.Println("[info] ", i)
+
+	return i > 0, nil
+}

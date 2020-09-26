@@ -2,6 +2,7 @@ package graph
 
 import (
 	b64 "encoding/base64"
+	"errors"
 	"strings"
 	"tkame123-net/worldcup-gq-server/domain"
 	"tkame123-net/worldcup-gq-server/graph/model"
@@ -46,4 +47,14 @@ func ToGlobalID(verStr string, entityName string, id string) string {
 	idEncode := b64.StdEncoding.EncodeToString([]byte(idStr))
 
 	return idEncode
+}
+
+func DecodeGlobalID(id string) (domain.GlobalID, error) {
+	dec, _ := b64.StdEncoding.DecodeString(id)
+	slice := strings.Split(string(dec), ":")
+	if len(slice) < 3 {
+		return domain.GlobalID{}, errors.New("invalid data")
+	}
+	return domain.GlobalID{VerStr: slice[0], EntityName: slice[1], ID: slice[2]}, nil
+
 }

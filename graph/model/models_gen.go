@@ -7,14 +7,22 @@ type Node interface {
 }
 
 type Competition struct {
-	ID              string       `json:"id"`
-	Year            string       `json:"year"`
-	Country         string       `json:"country"`
-	PrevCompetition *Competition `json:"prevCompetition"`
-	NextCompetition *Competition `json:"nextCompetition"`
+	ID      string `json:"id"`
+	Year    string `json:"year"`
+	Country string `json:"country"`
 }
 
 func (Competition) IsNode() {}
+
+type CompetitionConnection struct {
+	Edges    []*Competition `json:"edges"`
+	PageInfo *PageInfo      `json:"pageInfo"`
+}
+
+type CompetitionEdge struct {
+	Cursor string       `json:"cursor"`
+	Node   *Competition `json:"node"`
+}
 
 type Filter struct {
 	Eq    string `json:"eq"`
@@ -30,6 +38,13 @@ type Match struct {
 }
 
 func (Match) IsNode() {}
+
+type PageInfo struct {
+	HasNextPage     bool    `json:"hasNextPage"`
+	HasPreviousPage bool    `json:"hasPreviousPage"`
+	StartCursor     *string `json:"startCursor"`
+	EndCursor       *string `json:"endCursor"`
+}
 
 type Player struct {
 	Name      string   `json:"name"`

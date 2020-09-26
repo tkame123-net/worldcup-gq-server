@@ -18,11 +18,13 @@ type MongodbCompetitionRepository interface {
 	GetByYear(ctx context.Context, year *int) (*domain.Competition, error)
 	GetAll(ctx context.Context) ([]*domain.Competition, error)
 	GetAllByCountry(ctx context.Context, country *string) ([]*domain.Competition, error)
+	Exists(ctx context.Context, id *domain.CompetitionID) (bool, error)
 }
 
 type MongodbMatchRepository interface {
 	GetAll(ctx context.Context) ([]*domain.Match, error)
 	GetAllByYear(ctx context.Context, year string, filterType domain.FilterType) ([]*domain.Match, error)
+	Exists(ctx context.Context, id *domain.MatchID) (bool, error)
 }
 
 type MongodbPlayerRepository interface {
