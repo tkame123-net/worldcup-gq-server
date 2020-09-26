@@ -17,6 +17,22 @@ func ToCompetitionResponse(entity *domain.Competition) *model.Competition {
 	}
 }
 
+func ToCompetitionEdgeResponse(entity *domain.Competition) *model.CompetitionEdge {
+	node := ToCompetitionResponse(entity)
+	return &model.CompetitionEdge{
+		Cursor: string(entity.ID),
+		Node:   node,
+	}
+}
+
+func ToCompetitionConnectionResponse(edges []*model.CompetitionEdge, pageInfo *model.PageInfo) *model.CompetitionConnection {
+
+	return &model.CompetitionConnection{
+		Edges:    edges,
+		PageInfo: pageInfo,
+	}
+}
+
 func ToPlayerResponse(entity *domain.Player) *model.Player {
 	mList := make([]*model.Match, 0, len(entity.MatchList))
 	for _, v := range entity.MatchList {
