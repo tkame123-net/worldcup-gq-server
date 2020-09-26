@@ -21,7 +21,7 @@ type Competition implements Node{
 }
 
 type CompetitionConnection{
-  edges: [Competition]
+  edges: [CompetitionEdge]
   pageInfo: PageInfo!
 }
 
@@ -53,7 +53,7 @@ type Player {
 }
 
 type Query {
-  allCompetition: [Competition]!
+  allCompetition(first: Int, after: String): CompetitionConnection
   allMatch(filterYear: Filter! = {}): [Match]!
   allPlayer(filterPlayerName: Filter! = {}): [Player]!
   node(id: ID!): Node

@@ -12,19 +12,46 @@ import (
 	"tkame123-net/worldcup-gq-server/graph/model"
 )
 
-func (r *queryResolver) AllCompetition(ctx context.Context) ([]*model.Competition, error) {
+func (r *queryResolver) AllCompetition(ctx context.Context, first *int, after *string) (*model.CompetitionConnection, error) {
+	//ctx = context.Background()
+	//res, err := r.MongoCompetition.GetAll(ctx)
+	//if err != nil {
+	//	log.Fatalf("error: %v", err)
+	//}
+	//
+	//resItems := make([]*model.Competition, 0, len(res))
+	//for _, item := range res {
+	//	resItems = append(resItems, ToCompetitionResponse(item))
+	//}
+
+	// competition を取ってくる
 	ctx = context.Background()
-	res, err := r.MongoCompetition.GetAll(ctx)
+	limit := first
+	cursor := after
+	competitions, err := r.MongoCompetition.GetMultiByRange(ctx, limit, cursor)
+	//competitions, err := r.MongoCompetition.GetAll(ctx)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
 
-	resItems := make([]*model.Competition, 0, len(res))
-	for _, item := range res {
-		resItems = append(resItems, ToCompetitionResponse(item))
+	// competitionEdges に変換
+	competitionEdges := make([]*model.CompetitionEdge, 0, len(competitions))
+	for _, competition := range competitions {
+		competitionEdges = append(competitionEdges, ToCompetitionEdgeResponse(competition))
 	}
 
-	return resItems, nil
+	// TODO: pageinfo を制作
+	pageInfo := model.PageInfo{
+		HasNextPage:     false,
+		HasPreviousPage: false,
+		StartCursor:     nil,
+		EndCursor:       nil,
+	}
+
+	// competitionConnection に変換
+	competitionConnection := ToCompetitionConnectionResponse(competitionEdges, &pageInfo)
+
+	return competitionConnection, nil
 }
 
 func (r *queryResolver) AllMatch(ctx context.Context, filterYear model.Filter) ([]*model.Match, error) {

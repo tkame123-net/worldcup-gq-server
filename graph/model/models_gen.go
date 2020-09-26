@@ -15,8 +15,8 @@ type Competition struct {
 func (Competition) IsNode() {}
 
 type CompetitionConnection struct {
-	Edges    []*Competition `json:"edges"`
-	PageInfo *PageInfo      `json:"pageInfo"`
+	Edges    []*CompetitionEdge `json:"edges"`
+	PageInfo *PageInfo          `json:"pageInfo"`
 }
 
 type CompetitionEdge struct {
