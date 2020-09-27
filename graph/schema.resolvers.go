@@ -13,39 +13,52 @@ import (
 )
 
 func (r *queryResolver) AllCompetition(ctx context.Context, first *int, after *string) (*model.CompetitionConnection, error) {
-	//ctx = context.Background()
-	//res, err := r.MongoCompetition.GetAll(ctx)
-	//if err != nil {
-	//	log.Fatalf("error: %v", err)
-	//}
-	//
-	//resItems := make([]*model.Competition, 0, len(res))
-	//for _, item := range res {
-	//	resItems = append(resItems, ToCompetitionResponse(item))
-	//}
-
-	// competition を取ってくる
+	// competition
 	ctx = context.Background()
-	limit := first
+	limit := *first + 1
 	cursor := after
-	competitions, err := r.MongoCompetition.GetMultiByRange(ctx, limit, cursor)
-	//competitions, err := r.MongoCompetition.GetAll(ctx)
+	asc := true
+	competitions, err := r.MongoCompetition.GetMultiByRange(ctx, &limit, cursor, &asc)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
 
-	// competitionEdges に変換
+	// PageInfo
+	hasNextPage := false
+	if len(competitions) == limit {
+		hasNextPage = true
+		competitions = append(competitions[:len(competitions)-1])
+	}
+	var startCursor, endCursor string
+	if len(competitions) > 0 {
+		startCursor = string(competitions[0].ID)
+		endCursor = string(competitions[len(competitions)-1].ID)
+	}
+
+	prevLimit := 2
+	desc := !asc
+	prevCompetitions, err := r.MongoCompetition.GetMultiByRange(ctx, &prevLimit, cursor, &desc)
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
+	hasPreviousPage := false
+	if len(prevCompetitions) > 1 {
+		hasPreviousPage = true
+	}
+
+	pageInfo := model.PageInfo{
+		HasNextPage:     hasNextPage,
+		HasPreviousPage: hasPreviousPage,
+	}
+	if len(competitions) > 0 {
+		pageInfo.StartCursor = &startCursor
+		pageInfo.EndCursor = &endCursor
+	}
+
+	// competitionEdges
 	competitionEdges := make([]*model.CompetitionEdge, 0, len(competitions))
 	for _, competition := range competitions {
 		competitionEdges = append(competitionEdges, ToCompetitionEdgeResponse(competition))
-	}
-
-	// TODO: pageinfo を制作
-	pageInfo := model.PageInfo{
-		HasNextPage:     false,
-		HasPreviousPage: false,
-		StartCursor:     nil,
-		EndCursor:       nil,
 	}
 
 	// competitionConnection に変換

@@ -88,8 +88,12 @@ func (r *repository) GetAll(ctx context.Context) ([]*domain.Competition, error) 
 	return items, nil
 }
 
-func (r *repository) GetMultiByRange(ctx context.Context, limit *int, cursor *string) ([]*domain.Competition, error) {
+func (r *repository) GetMultiByRange(ctx context.Context, limit *int, cursor *string, asc *bool) ([]*domain.Competition, error) {
 	var entities []entity
+	sort := 1 // default: asc
+	if *asc == false {
+		sort = -1
+	}
 
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
@@ -101,14 +105,17 @@ func (r *repository) GetMultiByRange(ctx context.Context, limit *int, cursor *st
 	col := c.Client.Database(c.Database).Collection(collection)
 
 	objectID, _ := primitive.ObjectIDFromHex(*cursor)
+	filter := bson.M{"_id": bson.M{"$gte": objectID}}
+	if sort == -1 {
+		filter = bson.M{"_id": bson.M{"$lte": objectID}}
+	}
 	i := int64(*limit)
 
 	opts := options.FindOptions{
-		Min:   bson.M{"_id": objectID},
-		Hint:  bson.M{"_id": 1},
+		Sort:  bson.M{"_id": sort},
 		Limit: &i,
 	}
-	cur, err := col.Find(ctx, bson.M{}, &opts)
+	cur, err := col.Find(ctx, filter, &opts)
 	if err != nil {
 		return nil, fmt.Errorf("message: %w", err)
 	}
