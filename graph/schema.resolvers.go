@@ -12,48 +12,56 @@ import (
 	"tkame123-net/worldcup-gq-server/graph/model"
 )
 
-func (r *queryResolver) AllCompetition(ctx context.Context, first *int, after *string) (*model.CompetitionConnection, error) {
-	// competition
+func (r *queryResolver) AllCompetition(ctx context.Context, first *int, last *int, after *string, before *string) (*model.CompetitionConnection, error) {
+	// step1: CursorsToEdgesの取得
 	ctx = context.Background()
-	limit := *first + 1
-	cursor := after
-	asc := true
-	competitions, err := r.MongoCompetition.GetMultiByRange(ctx, &limit, cursor, &asc)
+	competitions, err := r.MongoCompetition.GetCursorsToEdges(ctx, after, before)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
 
-	// PageInfo
-	hasNextPage := false
-	if len(competitions) == limit {
-		hasNextPage = true
-		competitions = append(competitions[:len(competitions)-1])
-	}
-	var startCursor, endCursor string
-	if len(competitions) > 0 {
-		startCursor = string(competitions[0].ID)
-		endCursor = string(competitions[len(competitions)-1].ID)
-	}
+	// step2: EdgesToReturnの生成
+	// todo: next action
 
-	prevLimit := 2
-	desc := !asc
-	prevCompetitions, err := r.MongoCompetition.GetMultiByRange(ctx, &prevLimit, cursor, &desc)
-	if err != nil {
-		log.Fatalf("error: %v", err)
-	}
-	hasPreviousPage := false
-	if len(prevCompetitions) > 1 {
-		hasPreviousPage = true
-	}
-
+	// step3: PageInfoの生成
+	hasNextPage := false     //todo:
+	hasPreviousPage := false //todo:
 	pageInfo := model.PageInfo{
 		HasNextPage:     hasNextPage,
 		HasPreviousPage: hasPreviousPage,
 	}
-	if len(competitions) > 0 {
-		pageInfo.StartCursor = &startCursor
-		pageInfo.EndCursor = &endCursor
-	}
+
+	// PageInfo
+	//hasNextPage := false
+	//if len(competitions) == limit {
+	//	hasNextPage = true
+	//	competitions = append(competitions[:len(competitions)-1])
+	//}
+	//var startCursor, endCursor string
+	//if len(competitions) > 0 {
+	//	startCursor = string(competitions[0].ID)
+	//	endCursor = string(competitions[len(competitions)-1].ID)
+	//}
+	//
+	//prevLimit := 2
+	//desc := !asc
+	//prevCompetitions, err := r.MongoCompetition.GetMultiByRange(ctx, &prevLimit, cursor, &desc)
+	//if err != nil {
+	//	log.Fatalf("error: %v", err)
+	//}
+	//hasPreviousPage := false
+	//if len(prevCompetitions) > 1 {
+	//	hasPreviousPage = true
+	//}
+	//
+	//pageInfo := model.PageInfo{
+	//	HasNextPage:     hasNextPage,
+	//	HasPreviousPage: hasPreviousPage,
+	//}
+	//if len(competitions) > 0 {
+	//	pageInfo.StartCursor = &startCursor
+	//	pageInfo.EndCursor = &endCursor
+	//}
 
 	// competitionEdges
 	competitionEdges := make([]*model.CompetitionEdge, 0, len(competitions))

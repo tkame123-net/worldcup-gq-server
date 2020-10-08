@@ -53,7 +53,7 @@ type Player {
 }
 
 type Query {
-  allCompetition(first: Int, after: String): CompetitionConnection
+  allCompetition(first: Int, last: Int, after: String, before: String): CompetitionConnection
   allMatch(filterYear: Filter! = {}): [Match]!
   allPlayer(filterPlayerName: Filter! = {}): [Player]!
   node(id: ID!): Node
