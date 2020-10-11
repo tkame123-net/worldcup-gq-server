@@ -20,6 +20,18 @@ func (r *queryResolver) AllCompetition(ctx context.Context, first *int, last *in
 		log.Fatalf("error: %v", err)
 	}
 
+	allCompetitions, err := r.MongoCompetition.GetAll(ctx)
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
+	resItems := make([]domain.Competition, 0, len(allCompetitions))
+	for _, item := range allCompetitions {
+		resItems = append(resItems, *item)
+	}
+	edges, err := ApplyCursorsToEdges(resItems, before, after)
+
+	log.Println("[info]edges ", edges)
+
 	// step2: EdgesToReturnの生成
 	// todo: next action
 
