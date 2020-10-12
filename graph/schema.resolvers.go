@@ -13,27 +13,22 @@ import (
 )
 
 func (r *queryResolver) AllCompetition(ctx context.Context, first *int, last *int, after *string, before *string) (*model.CompetitionConnection, error) {
-	// step1: CursorsToEdgesの取得
+	// allEdges
 	ctx = context.Background()
 	competitions, err := r.MongoCompetition.GetCursorsToEdges(ctx, after, before)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
-
 	allCompetitions, err := r.MongoCompetition.GetAll(ctx)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
-	resItems := make([]domain.Competition, 0, len(allCompetitions))
-	for _, item := range allCompetitions {
-		resItems = append(resItems, *item)
-	}
-	edges, err := ApplyCursorsToEdges(resItems, before, after)
 
-	log.Println("[info]edges ", edges)
+	// CursorsToEdge/EdgesToReturn
+	edges, err := EdgesToReturn(allCompetitions, before, after, first, last)
 
-	// step2: EdgesToReturnの生成
-	// todo: next action
+	// todo: delete
+	log.Println(edges)
 
 	// step3: PageInfoの生成
 	hasNextPage := false     //todo:
