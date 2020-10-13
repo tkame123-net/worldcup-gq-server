@@ -85,3 +85,75 @@ func EdgesToReturn(allEdges []*domain.Competition, before *string, after *string
 
 	return edges, nil
 }
+
+func HasPreviousPage(allEdges []*domain.Competition, before *string, after *string, first *int, last *int) (bool, error) {
+	resItems := make([]domain.Competition, 0, len(allEdges))
+	for _, item := range allEdges {
+		resItems = append(resItems, *item)
+	}
+
+	// 1 If last is set:
+	if last != nil {
+		// 1-a Let edges be the result of calling ApplyCursorsToEdges(allEdges, before, after).
+		edges, err := ApplyCursorsToEdges(resItems, before, after)
+		if err != nil {
+			return false, err
+		}
+		// 1-b If edges contains more than last elements return true, otherwise false.
+		if len(edges) > *last {
+			return true, nil
+		}
+	}
+	// 2 If after is set:
+	if after != nil {
+		// 2-a If the server can efficiently determine that elements exist prior to after, return true.
+		afterIndex := 0
+		for i := range resItems {
+			if string(resItems[i].ID) == *after {
+				afterIndex = i
+				break
+			}
+		}
+		if afterIndex > 0 {
+			return true, nil
+		}
+	}
+	// 3 Return false.
+	return false, nil
+}
+
+func HasNextPage(allEdges []*domain.Competition, before *string, after *string, first *int, last *int) (bool, error) {
+	resItems := make([]domain.Competition, 0, len(allEdges))
+	for _, item := range allEdges {
+		resItems = append(resItems, *item)
+	}
+
+	// 1 If first is set:
+	if first != nil {
+		// 1-a Let edges be the result of calling ApplyCursorsToEdges(allEdges, before, after).
+		edges, err := ApplyCursorsToEdges(resItems, before, after)
+		if err != nil {
+			return false, err
+		}
+		// 1-b If edges contains more than first elements return true, otherwise false.
+		if len(edges) > *first {
+			return true, nil
+		}
+	}
+	// 2 If before is set:
+	if before != nil {
+		// 2-a If the server can efficiently determine that elements exist following before, return true
+		beforeIndex := len(resItems)
+		for i := range resItems {
+			if string(resItems[i].ID) == *before {
+				beforeIndex = i
+				break
+			}
+		}
+		if beforeIndex < len(resItems) {
+			return true, nil
+		}
+	}
+	// 3 Return false.
+	return false, nil
+}

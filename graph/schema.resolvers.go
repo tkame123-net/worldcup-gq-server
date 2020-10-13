@@ -31,14 +31,22 @@ func (r *queryResolver) AllCompetition(ctx context.Context, first *int, last *in
 	log.Println(edges)
 
 	// step3: PageInfoの生成
-	hasNextPage := false     //todo:
-	hasPreviousPage := false //todo:
+	hasNextPage, err := HasNextPage(allCompetitions, before, after, first, last)
+	hasPreviousPage, err := HasPreviousPage(allCompetitions, before, after, first, last)
 	pageInfo := model.PageInfo{
 		HasNextPage:     hasNextPage,
 		HasPreviousPage: hasPreviousPage,
 	}
 
 	// PageInfo
+
+	// 1 If last is set:
+	// 1-a Let edges be the result of calling ApplyCursorsToEdges(allEdges, before, after).
+	// 1-b If edges contains more than last elements return true, otherwise false.
+	// 2 If after is set:
+	// 2-a If the server can efficiently determine that elements exist prior to after, return true.
+	// 3 Return false.
+
 	//hasNextPage := false
 	//if len(competitions) == limit {
 	//	hasNextPage = true
