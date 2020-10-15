@@ -15,10 +15,6 @@ import (
 func (r *queryResolver) AllCompetition(ctx context.Context, first *int, last *int, after *string, before *string) (*model.CompetitionConnection, error) {
 	// allEdges
 	ctx = context.Background()
-	competitions, err := r.MongoCompetition.GetCursorsToEdges(ctx, after, before)
-	if err != nil {
-		log.Fatalf("error: %v", err)
-	}
 	allCompetitions, err := r.MongoCompetition.GetAll(ctx)
 	if err != nil {
 		log.Fatalf("error: %v", err)
@@ -26,62 +22,35 @@ func (r *queryResolver) AllCompetition(ctx context.Context, first *int, last *in
 
 	// CursorsToEdge/EdgesToReturn
 	edges, err := EdgesToReturn(allCompetitions, before, after, first, last)
-
-	// todo: delete
-	log.Println(edges)
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
 
 	// step3: PageInfoの生成
 	hasNextPage, err := HasNextPage(allCompetitions, before, after, first, last)
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
 	hasPreviousPage, err := HasPreviousPage(allCompetitions, before, after, first, last)
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
+	var startCursor, endCursor string
+	if len(edges) > 0 {
+		startCursor = string(edges[0].ID)
+		endCursor = string(edges[len(edges)-1].ID)
+	}
 	pageInfo := model.PageInfo{
 		HasNextPage:     hasNextPage,
 		HasPreviousPage: hasPreviousPage,
+		StartCursor:     &startCursor,
+		EndCursor:       &endCursor,
 	}
 
-	// PageInfo
-
-	// 1 If last is set:
-	// 1-a Let edges be the result of calling ApplyCursorsToEdges(allEdges, before, after).
-	// 1-b If edges contains more than last elements return true, otherwise false.
-	// 2 If after is set:
-	// 2-a If the server can efficiently determine that elements exist prior to after, return true.
-	// 3 Return false.
-
-	//hasNextPage := false
-	//if len(competitions) == limit {
-	//	hasNextPage = true
-	//	competitions = append(competitions[:len(competitions)-1])
-	//}
-	//var startCursor, endCursor string
-	//if len(competitions) > 0 {
-	//	startCursor = string(competitions[0].ID)
-	//	endCursor = string(competitions[len(competitions)-1].ID)
-	//}
-	//
-	//prevLimit := 2
-	//desc := !asc
-	//prevCompetitions, err := r.MongoCompetition.GetMultiByRange(ctx, &prevLimit, cursor, &desc)
-	//if err != nil {
-	//	log.Fatalf("error: %v", err)
-	//}
-	//hasPreviousPage := false
-	//if len(prevCompetitions) > 1 {
-	//	hasPreviousPage = true
-	//}
-	//
-	//pageInfo := model.PageInfo{
-	//	HasNextPage:     hasNextPage,
-	//	HasPreviousPage: hasPreviousPage,
-	//}
-	//if len(competitions) > 0 {
-	//	pageInfo.StartCursor = &startCursor
-	//	pageInfo.EndCursor = &endCursor
-	//}
-
 	// competitionEdges
-	competitionEdges := make([]*model.CompetitionEdge, 0, len(competitions))
-	for _, competition := range competitions {
-		competitionEdges = append(competitionEdges, ToCompetitionEdgeResponse(competition))
+	competitionEdges := make([]*model.CompetitionEdge, 0, len(edges))
+	for _, edge := range edges {
+		competitionEdges = append(competitionEdges, ToCompetitionEdgeResponse(&edge))
 	}
 
 	// competitionConnection に変換
