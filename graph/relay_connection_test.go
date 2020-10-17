@@ -60,19 +60,54 @@ func TestApplyCursorsToEdges(t *testing.T) {
 		Country: "",
 	})
 
-	after := "3"
+	var after, before string
 
 	// 1 afterが存在して beforeが存在しない場合
+	after = "3"
 	edges, err := ApplyCursorsToEdges(allEdges, nil, &after)
 	if err != nil {
 		t.Fatalf("error: %v\n", err)
 	}
+	assert.Equal(t, 7, len(edges), "case1")
 
-	assert.Equal(t, len(edges), 7)
+	// 2 afterが存在して beforeが存在する場合
+	after = "3"
+	before = "7"
+	edges, err = ApplyCursorsToEdges(allEdges, &before, &after)
+	if err != nil {
+		t.Fatalf("error: %v\n", err)
+	}
+	assert.Equal(t, 3, len(edges), "case2")
+
+	// 3 afterが存在せず beforeが存在しない場合
+	edges, err = ApplyCursorsToEdges(allEdges, nil, nil)
+	if err != nil {
+		t.Fatalf("error: %v\n", err)
+	}
+	assert.Equal(t, 10, len(edges), "case3")
+
+	// 4 afterが存在せず beforeが存在する場合
+	before = "7"
+	edges, err = ApplyCursorsToEdges(allEdges, &before, nil)
+	if err != nil {
+		t.Fatalf("error: %v\n", err)
+	}
+	assert.Equal(t, 6, len(edges), "case4")
+
+	// 5 存在しないafterを指定した場合
+	after = "11"
+	edges, err = ApplyCursorsToEdges(allEdges, nil, &after)
+	if err != nil {
+		t.Fatalf("error: %v\n", err)
+	}
+	assert.Equal(t, 10, len(edges), "case5")
+
+	// 6 存在しないbeforeを指定した場合
+	before = "11"
+	edges, err = ApplyCursorsToEdges(allEdges, &before, nil)
+	if err != nil {
+		t.Fatalf("error: %v\n", err)
+	}
+	assert.Equal(t, 10, len(edges), "case6")
+
 }
-
-// 2 afterが存在して beforeが存在する場合
-// 3 afterが存在せず beforeが存在しない場合
-// 4 afterが存在せず beforeが存在する場合
-// 5 ありえないbeforeが入っている場合
-// 6 ありえないafterが入っている場合

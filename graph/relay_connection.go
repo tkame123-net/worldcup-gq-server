@@ -41,7 +41,7 @@ func ApplyCursorsToEdges(allEdges []domain.Competition, before *string, after *s
 		}
 		// b If beforeEdge exists: Remove all elements of edges after and including beforeEdge.
 		if beforeEdge != "" && beforeEdgeIndex < len(edges) {
-			edges = append(edges[:beforeEdgeIndex+1])
+			edges = append(edges[:beforeEdgeIndex])
 		}
 	}
 	//Return edges.
