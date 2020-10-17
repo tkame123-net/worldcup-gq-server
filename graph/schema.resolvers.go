@@ -12,53 +12,45 @@ import (
 	"tkame123-net/worldcup-gq-server/graph/model"
 )
 
-func (r *queryResolver) AllCompetition(ctx context.Context, first *int, after *string) (*model.CompetitionConnection, error) {
-	// competition
+func (r *queryResolver) AllCompetition(ctx context.Context, first *int, last *int, after *string, before *string) (*model.CompetitionConnection, error) {
+	// allEdges
 	ctx = context.Background()
-	limit := *first + 1
-	cursor := after
-	asc := true
-	competitions, err := r.MongoCompetition.GetMultiByRange(ctx, &limit, cursor, &asc)
+	allCompetitions, err := r.MongoCompetition.GetAll(ctx)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
 
-	// PageInfo
-	hasNextPage := false
-	if len(competitions) == limit {
-		hasNextPage = true
-		competitions = append(competitions[:len(competitions)-1])
+	// CursorsToEdge/EdgesToReturn
+	edges, err := EdgesToReturn(allCompetitions, before, after, first, last)
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
+
+	// step3: PageInfoの生成
+	hasNextPage, err := HasNextPage(allCompetitions, before, after, first, last)
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
+	hasPreviousPage, err := HasPreviousPage(allCompetitions, before, after, first, last)
+	if err != nil {
+		log.Fatalf("error: %v", err)
 	}
 	var startCursor, endCursor string
-	if len(competitions) > 0 {
-		startCursor = string(competitions[0].ID)
-		endCursor = string(competitions[len(competitions)-1].ID)
+	if len(edges) > 0 {
+		startCursor = string(edges[0].ID)
+		endCursor = string(edges[len(edges)-1].ID)
 	}
-
-	prevLimit := 2
-	desc := !asc
-	prevCompetitions, err := r.MongoCompetition.GetMultiByRange(ctx, &prevLimit, cursor, &desc)
-	if err != nil {
-		log.Fatalf("error: %v", err)
-	}
-	hasPreviousPage := false
-	if len(prevCompetitions) > 1 {
-		hasPreviousPage = true
-	}
-
 	pageInfo := model.PageInfo{
 		HasNextPage:     hasNextPage,
 		HasPreviousPage: hasPreviousPage,
-	}
-	if len(competitions) > 0 {
-		pageInfo.StartCursor = &startCursor
-		pageInfo.EndCursor = &endCursor
+		StartCursor:     &startCursor,
+		EndCursor:       &endCursor,
 	}
 
 	// competitionEdges
-	competitionEdges := make([]*model.CompetitionEdge, 0, len(competitions))
-	for _, competition := range competitions {
-		competitionEdges = append(competitionEdges, ToCompetitionEdgeResponse(competition))
+	competitionEdges := make([]*model.CompetitionEdge, 0, len(edges))
+	for _, edge := range edges {
+		competitionEdges = append(competitionEdges, ToCompetitionEdgeResponse(&edge))
 	}
 
 	// competitionConnection に変換

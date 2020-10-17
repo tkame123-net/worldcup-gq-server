@@ -1,9 +1,8 @@
 .PHONY: test gen-ts build run-local
 
 test:
-	echo "test tobe"
-#	cp .env.test .env
-#	ENV_FILE=/Volumes/SSD/rep/blog-server/.env go test ./...
+	cp .env.test .env
+	ENV_FILE=/Volumes/SSD/rep/blog-server/.env go test ./...
 
 gen-ts:
 	npm run generate

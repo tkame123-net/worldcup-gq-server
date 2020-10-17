@@ -88,6 +88,66 @@ func (r *repository) GetAll(ctx context.Context) ([]*domain.Competition, error) 
 	return items, nil
 }
 
+func (r *repository) GetCursorsToEdges(ctx context.Context, after *string, before *string) ([]*domain.Competition, error) {
+	var entities []entity
+	var filter bson.M
+
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+	c, err := r.client(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("message: %w", err)
+	}
+	defer c.Client.Disconnect(ctx)
+	col := c.Client.Database(c.Database).Collection(collection)
+
+	if after == nil && before == nil {
+		filter = bson.M{}
+	}
+	if after != nil && before != nil {
+		objectIDAfter, _ := primitive.ObjectIDFromHex(*after)
+		objectIDBefore, _ := primitive.ObjectIDFromHex(*before)
+		filter = bson.M{"_id": bson.M{"$gt": objectIDAfter, "$lt": objectIDBefore}}
+	}
+	if after != nil && before == nil {
+		objectIDAfter, _ := primitive.ObjectIDFromHex(*after)
+		filter = bson.M{"_id": bson.M{"$gt": objectIDAfter}}
+	}
+	if after == nil && before != nil {
+		objectIDBefore, _ := primitive.ObjectIDFromHex(*before)
+		filter = bson.M{"_id": bson.M{"$lte": objectIDBefore}}
+	}
+	opts := options.FindOptions{
+		Sort: bson.M{"_id": 1},
+	}
+	cur, err := col.Find(ctx, filter, &opts)
+	if err != nil {
+		return nil, fmt.Errorf("message: %w", err)
+	}
+
+	defer cur.Close(ctx)
+	for cur.Next(ctx) {
+		var i entity
+		err := cur.Decode(&i)
+		if err != nil {
+			return nil, fmt.Errorf("message: %w", err)
+		}
+		entities = append(entities, i)
+	}
+
+	items := make([]*domain.Competition, 0, len(entities))
+	for _, v := range entities {
+		items = append(items, v.toDomain())
+	}
+
+	log.Println("[info] infra/mongodb/Competition/GetMultiByRange")
+	for _, i := range items {
+		log.Println("[info] ", i)
+	}
+
+	return items, nil
+}
+
 func (r *repository) GetMultiByRange(ctx context.Context, limit *int, cursor *string, asc *bool) ([]*domain.Competition, error) {
 	var entities []entity
 	sort := 1 // default: asc
