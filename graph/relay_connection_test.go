@@ -215,10 +215,10 @@ func TestHasNextPage(t *testing.T) {
 		if err != nil {
 			t.Fatalf("error: %v\n", err)
 		}
-		assert.Equal(t, true, hasNextPage, "case4")
+		assert.Equal(t, true, hasNextPage, "case5")
 	})
 
-	// 5 last 3 before 5 10件中 ５番目より前から後ろから4個取った場合 次のページ　ある
+	// 5 last 3 before 5 10件中 ５番目より前から後ろから3個取った場合 次のページ　ある
 	t.Run("case4", func(t *testing.T) {
 		last := 3
 		before := "5"
@@ -226,7 +226,7 @@ func TestHasNextPage(t *testing.T) {
 		if err != nil {
 			t.Fatalf("error: %v\n", err)
 		}
-		assert.Equal(t, true, hasNextPage, "case4")
+		assert.Equal(t, true, hasNextPage, "case6")
 	})
 
 }
