@@ -166,41 +166,63 @@ func TestHasNextPage(t *testing.T) {
 		Country: "",
 	})
 
-	var before string
-
-	var first int
-
-	// 1 firstが存在して、beforeが存在しない場合
+	// 1 first 5 after 5 10件中 ５番目より後から５個取った場合 次のページは無い false
 	t.Run("case1", func(t *testing.T) {
-		first = 5
-		hasNextPage, err := HasNextPage(allEdges, nil, nil, &first, nil)
+		first := 5
+		after := "5"
+		hasNextPage, err := HasNextPage(allEdges, nil, &after, &first, nil)
 		if err != nil {
 			t.Fatalf("error: %v\n", err)
 		}
-		assert.Equal(t, true, hasNextPage, "case1")
+		assert.Equal(t, false, hasNextPage, "case1")
 	})
-	// 2 firstが存在して、beforeが存在する場合 *おかしい
+	// 2 first 4 after 5 10件中 ５番目より後から４個取った場合 次のページはある　true
 	t.Run("case2", func(t *testing.T) {
-		first = 11
-		before = "8"
-		hasNextPage, err := HasNextPage(allEdges, &before, nil, &first, nil)
+		first := 4
+		after := "5"
+		hasNextPage, err := HasNextPage(allEdges, nil, &after, &first, nil)
 		if err != nil {
 			t.Fatalf("error: %v\n", err)
 		}
 		assert.Equal(t, true, hasNextPage, "case2")
 	})
-	// 3 firstが存在せず、beforeが存在しない場合
+	// 3 first 6 after 5 10件中 ５番目より後から6個取った場合(取り切れない) 次のページはない　false
 	t.Run("case3", func(t *testing.T) {
-		hasNextPage, err := HasNextPage(allEdges, nil, nil, nil, nil)
+		first := 6
+		after := "5"
+		hasNextPage, err := HasNextPage(allEdges, nil, &after, &first, nil)
 		if err != nil {
 			t.Fatalf("error: %v\n", err)
 		}
 		assert.Equal(t, false, hasNextPage, "case3")
 	})
-	// 4 firstが存在せず、beforeが存在する場合　*おかしい
+	// 4 last 5 before 5 10件中 ５番目より前から後ろから５個取った場合　次のぺーじ　ある
 	t.Run("case4", func(t *testing.T) {
-		before = "5"
-		hasNextPage, err := HasNextPage(allEdges, &before, nil, nil, nil)
+		last := 5
+		before := "5"
+		hasNextPage, err := HasNextPage(allEdges, &before, nil, nil, &last)
+		if err != nil {
+			t.Fatalf("error: %v\n", err)
+		}
+		assert.Equal(t, true, hasNextPage, "case4")
+	})
+
+	// 5 last 4 before 5 10件中 ５番目より前から後ろから4個取った場合 次のページ　ある
+	t.Run("case4", func(t *testing.T) {
+		last := 4
+		before := "5"
+		hasNextPage, err := HasNextPage(allEdges, &before, nil, nil, &last)
+		if err != nil {
+			t.Fatalf("error: %v\n", err)
+		}
+		assert.Equal(t, true, hasNextPage, "case4")
+	})
+
+	// 5 last 3 before 5 10件中 ５番目より前から後ろから4個取った場合 次のページ　ある
+	t.Run("case4", func(t *testing.T) {
+		last := 3
+		before := "5"
+		hasNextPage, err := HasNextPage(allEdges, &before, nil, nil, &last)
 		if err != nil {
 			t.Fatalf("error: %v\n", err)
 		}
@@ -209,7 +231,7 @@ func TestHasNextPage(t *testing.T) {
 
 }
 
-// HasNextPage
+// HasPreviousPage
 func TestHasPreviousPage(t *testing.T) {
 	allEdges := make([]*domain.Competition, 0, 10)
 	allEdges = append(allEdges, &domain.Competition{
@@ -263,45 +285,66 @@ func TestHasPreviousPage(t *testing.T) {
 		Country: "",
 	})
 
-	var after string
-
-	var last int
-
-	// 1 lastが存在して、afterが存在しない場合
+	// 1 first 5 after 5 10件中 ５番目より後から５個取った場合 前のページはある
 	t.Run("case1", func(t *testing.T) {
-		last = 5
-		hasNextPage, err := HasPreviousPage(allEdges, nil, nil, nil, &last)
+		first := 5
+		after := "5"
+		hasPreviousPage, err := HasPreviousPage(allEdges, nil, &after, &first, nil)
 		if err != nil {
 			t.Fatalf("error: %v\n", err)
 		}
-		assert.Equal(t, true, hasNextPage, "case1")
+		assert.Equal(t, true, hasPreviousPage, "case1")
 	})
-	// 2 lastが存在して、afterが存在する場合 *おかしい
+	// 2 first 4 after 5 10件中 ５番目より後から４個取った場合前のページはある
 	t.Run("case2", func(t *testing.T) {
-		last = 5
-		after = "11"
-		hasNextPage, err := HasPreviousPage(allEdges, nil, &after, nil, &last)
+		first := 4
+		after := "5"
+		hasPreviousPage, err := HasPreviousPage(allEdges, nil, &after, &first, nil)
 		if err != nil {
 			t.Fatalf("error: %v\n", err)
 		}
-		assert.Equal(t, true, hasNextPage, "case2")
+		assert.Equal(t, true, hasPreviousPage, "case2")
 	})
-	// 3 lastが存在せず、afterが存在しない場合
+	// 3 first 6 after 5 10件中 ５番目より後から6個取った場合(取り切れない) 前のページはある
 	t.Run("case3", func(t *testing.T) {
-		hasNextPage, err := HasPreviousPage(allEdges, nil, nil, nil, nil)
+		first := 6
+		after := "5"
+		hasPreviousPage, err := HasPreviousPage(allEdges, nil, &after, &first, nil)
 		if err != nil {
 			t.Fatalf("error: %v\n", err)
 		}
-		assert.Equal(t, false, hasNextPage, "case3")
+		assert.Equal(t, true, hasPreviousPage, "case3")
 	})
-	// 4 lastが存在せず、afterが存在する場合　*おかしい
+	// 4 last 5 before 5 10件中 ５番目より前から後ろから５個取った場合　前のページはない
 	t.Run("case4", func(t *testing.T) {
-		after = "5"
-		hasNextPage, err := HasPreviousPage(allEdges, nil, &after, nil, nil)
+		last := 5
+		before := "5"
+		hasPreviousPage, err := HasPreviousPage(allEdges, &before, nil, nil, &last)
 		if err != nil {
 			t.Fatalf("error: %v\n", err)
 		}
-		assert.Equal(t, true, hasNextPage, "case4")
+		assert.Equal(t, false, hasPreviousPage, "case4")
+	})
+	// 5 last 4 before 5 10件中 ５番目より前から4個取った場合 前のページはない
+	t.Run("case4", func(t *testing.T) {
+		last := 4
+		before := "5"
+		hasPreviousPage, err := HasPreviousPage(allEdges, &before, nil, nil, &last)
+		if err != nil {
+			t.Fatalf("error: %v\n", err)
+		}
+		assert.Equal(t, false, hasPreviousPage, "case5")
+	})
+
+	// 6 last 3 before 5 10件中 ５番目より前から3個取った場合 前のページはある
+	t.Run("case4", func(t *testing.T) {
+		last := 3
+		before := "5"
+		hasPreviousPage, err := HasPreviousPage(allEdges, &before, nil, nil, &last)
+		if err != nil {
+			t.Fatalf("error: %v\n", err)
+		}
+		assert.Equal(t, true, hasPreviousPage, "case6")
 	})
 
 }
