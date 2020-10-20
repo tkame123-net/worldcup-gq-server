@@ -208,7 +208,7 @@ func TestHasNextPage(t *testing.T) {
 	})
 
 	// 5 last 4 before 5 10件中 ５番目より前から後ろから4個取った場合 次のページ　ある
-	t.Run("case4", func(t *testing.T) {
+	t.Run("case5", func(t *testing.T) {
 		last := 4
 		before := "5"
 		hasNextPage, err := HasNextPage(allEdges, &before, nil, nil, &last)
@@ -219,7 +219,7 @@ func TestHasNextPage(t *testing.T) {
 	})
 
 	// 5 last 3 before 5 10件中 ５番目より前から後ろから3個取った場合 次のページ　ある
-	t.Run("case4", func(t *testing.T) {
+	t.Run("case6", func(t *testing.T) {
 		last := 3
 		before := "5"
 		hasNextPage, err := HasNextPage(allEdges, &before, nil, nil, &last)
@@ -326,7 +326,7 @@ func TestHasPreviousPage(t *testing.T) {
 		assert.Equal(t, false, hasPreviousPage, "case4")
 	})
 	// 5 last 4 before 5 10件中 ５番目より前から4個取った場合 前のページはない
-	t.Run("case4", func(t *testing.T) {
+	t.Run("case5", func(t *testing.T) {
 		last := 4
 		before := "5"
 		hasPreviousPage, err := HasPreviousPage(allEdges, &before, nil, nil, &last)
@@ -337,7 +337,7 @@ func TestHasPreviousPage(t *testing.T) {
 	})
 
 	// 6 last 3 before 5 10件中 ５番目より前から3個取った場合 前のページはある
-	t.Run("case4", func(t *testing.T) {
+	t.Run("case6", func(t *testing.T) {
 		last := 3
 		before := "5"
 		hasPreviousPage, err := HasPreviousPage(allEdges, &before, nil, nil, &last)
