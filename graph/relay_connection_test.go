@@ -417,10 +417,10 @@ func TestEdgesToReturn(t *testing.T) {
 		outCursorOfFirst string // 戻りの値の先頭の値のCursor
 		outCursorOfEnd   string // 戻りの値の最後の値のCursor
 	}{
-		{"case1", "", "", 0, 0, 10, "1", "10"},
-		{"case2", "", "", 1, 0, 1, "1", "1"},
-		{"case3", "", "", 0, 1, 1, "10", "10"},
-		{"case4", "", "", 4, 2, 2, "3", "4"},
+		{"step1", "", "", 0, 0, 10, "1", "10"},
+		{"step2", "", "", 1, 0, 1, "1", "1"},
+		{"step3", "", "", 0, 1, 1, "10", "10"},
+		{"step4", "", "", 4, 2, 2, "3", "4"},
 	}
 
 	t.Run("case1: before nil/ after nil", func(t *testing.T) {
@@ -461,15 +461,162 @@ func TestEdgesToReturn(t *testing.T) {
 	// before 存在する値を指定, after 指定無し、 first 存在する値を指定、 last 指定無し
 	// before 存在する値を指定, after 指定無し、 first 指定無し、 last 存在する値を指定
 	// before 存在する値を指定, after 指定無し、 first 存在する値を指定、 last 存在する値を指定
+	var testCase2 = []struct {
+		pt               string
+		before           string
+		after            string
+		first            int
+		last             int
+		out              int    // 戻り値のlen値
+		outCursorOfFirst string // 戻りの値の先頭の値のCursor
+		outCursorOfEnd   string // 戻りの値の最後の値のCursor
+	}{
+		{"step1", "4", "", 0, 0, 3, "1", "3"},
+		{"step2", "4", "", 1, 0, 1, "1", "1"},
+		{"step3", "4", "", 0, 1, 1, "3", "3"},
+		{"step4", "4", "", 4, 2, 2, "2", "3"},
+	}
+
+	t.Run("case2: before any/ after nil", func(t *testing.T) {
+		a := make([]*domain.Competition, 0, len(allEdges))
+		for _, edge := range allEdges {
+			e := edge
+			a = append(a, &e)
+		}
+
+		for _, tt := range testCase2 {
+			var before, after *string
+			var first, last *int
+
+			if tt.before != "" {
+				before = &tt.before
+			}
+			if tt.after != "" {
+				after = &tt.after
+			}
+			if tt.first != 0 {
+				first = &tt.first
+			}
+			if tt.last != 0 {
+				last = &tt.last
+			}
+
+			edges, err := EdgesToReturn(a, before, after, first, last)
+			if err != nil {
+				t.Fatalf("error: %v\n", err)
+			}
+			assert.Equal(t, tt.out, len(edges), tt.pt+":01")
+			assert.Equal(t, tt.outCursorOfFirst, string(edges[0].ID), tt.pt+":02")
+			assert.Equal(t, tt.outCursorOfEnd, string(edges[len(edges)-1].ID), tt.pt+":03")
+		}
+	})
 
 	// before 指定無し, after 存在する値を指定、 first 指定無し、 last 指定無し
 	// before 指定無し, after 存在する値を指定、 first 存在する値を指定、 last 指定無し
 	// before 指定無し, after 存在する値を指定、 first 指定無し、 last 存在する値を指定
 	// before 指定無し, after 存在する値を指定、 first 存在する値を指定、 last 存在する値を指定
+	var testCase3 = []struct {
+		pt               string
+		before           string
+		after            string
+		first            int
+		last             int
+		out              int    // 戻り値のlen値
+		outCursorOfFirst string // 戻りの値の先頭の値のCursor
+		outCursorOfEnd   string // 戻りの値の最後の値のCursor
+	}{
+		{"step1", "", "4", 0, 0, 6, "5", "10"},
+		{"step2", "", "4", 1, 0, 1, "5", "5"},
+		{"step3", "", "4", 0, 1, 1, "10", "10"},
+		{"step4", "", "4", 4, 2, 2, "7", "8"},
+	}
+
+	t.Run("case3: before nil/ after any", func(t *testing.T) {
+		a := make([]*domain.Competition, 0, len(allEdges))
+		for _, edge := range allEdges {
+			e := edge
+			a = append(a, &e)
+		}
+
+		for _, tt := range testCase3 {
+			var before, after *string
+			var first, last *int
+
+			if tt.before != "" {
+				before = &tt.before
+			}
+			if tt.after != "" {
+				after = &tt.after
+			}
+			if tt.first != 0 {
+				first = &tt.first
+			}
+			if tt.last != 0 {
+				last = &tt.last
+			}
+
+			edges, err := EdgesToReturn(a, before, after, first, last)
+			if err != nil {
+				t.Fatalf("error: %v\n", err)
+			}
+			assert.Equal(t, tt.out, len(edges), tt.pt+":01")
+			assert.Equal(t, tt.outCursorOfFirst, string(edges[0].ID), tt.pt+":02")
+			assert.Equal(t, tt.outCursorOfEnd, string(edges[len(edges)-1].ID), tt.pt+":03")
+		}
+	})
 
 	// before 存在する値を指定, after 存在する値を指定、 first 指定無し、 last 指定無し
 	// before 存在する値を指定, after 存在する値を指定、 first 存在する値を指定、 last 指定無し
 	// before 存在する値を指定, after 存在する値を指定、 first 指定無し、 last 存在する値を指定
 	// before 存在する値を指定, after 存在する値を指定、 first 存在する値を指定、 last 存在する値を指定
+	var testCase4 = []struct {
+		pt               string
+		before           string
+		after            string
+		first            int
+		last             int
+		out              int    // 戻り値のlen値
+		outCursorOfFirst string // 戻りの値の先頭の値のCursor
+		outCursorOfEnd   string // 戻りの値の最後の値のCursor
+	}{
+		{"step1", "6", "2", 0, 0, 3, "3", "5"},
+		{"step2", "6", "2", 1, 0, 1, "3", "3"},
+		{"step3", "6", "2", 0, 1, 1, "5", "5"},
+		{"step4", "6", "2", 4, 2, 2, "4", "5"},
+	}
+
+	t.Run("case4: before any/ after any", func(t *testing.T) {
+		a := make([]*domain.Competition, 0, len(allEdges))
+		for _, edge := range allEdges {
+			e := edge
+			a = append(a, &e)
+		}
+
+		for _, tt := range testCase4 {
+			var before, after *string
+			var first, last *int
+
+			if tt.before != "" {
+				before = &tt.before
+			}
+			if tt.after != "" {
+				after = &tt.after
+			}
+			if tt.first != 0 {
+				first = &tt.first
+			}
+			if tt.last != 0 {
+				last = &tt.last
+			}
+
+			edges, err := EdgesToReturn(a, before, after, first, last)
+			if err != nil {
+				t.Fatalf("error: %v\n", err)
+			}
+			assert.Equal(t, tt.out, len(edges), tt.pt+":01")
+			assert.Equal(t, tt.outCursorOfFirst, string(edges[0].ID), tt.pt+":02")
+			assert.Equal(t, tt.outCursorOfEnd, string(edges[len(edges)-1].ID), tt.pt+":03")
+		}
+	})
 
 }
