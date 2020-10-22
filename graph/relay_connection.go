@@ -78,8 +78,8 @@ func EdgesToReturn(allEdges []*domain.Competition, before *string, after *string
 		}
 		//	If edges has length greater than than last:
 		//Slice edges to be of length last by removing edges from the start of edges.
-		if len(allEdges) > *last {
-			edges = append(edges[len(edges)-*last-1:])
+		if len(edges) > *last {
+			edges = append(edges[len(edges)-*last:])
 		}
 	}
 
