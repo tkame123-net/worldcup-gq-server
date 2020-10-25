@@ -8,57 +8,7 @@ import (
 
 // ApplyCursorsToEdges
 func TestApplyCursorsToEdges(t *testing.T) {
-	allEdges := make([]domain.Competition, 0, 10)
-	allEdges = append(allEdges, domain.Competition{
-		ID:      domain.CompetitionID("1"),
-		Year:    "1938",
-		Country: "",
-	})
-	allEdges = append(allEdges, domain.Competition{
-		ID:      domain.CompetitionID("2"),
-		Year:    "1942",
-		Country: "",
-	})
-	allEdges = append(allEdges, domain.Competition{
-		ID:      domain.CompetitionID("3"),
-		Year:    "1946",
-		Country: "",
-	})
-	allEdges = append(allEdges, domain.Competition{
-		ID:      domain.CompetitionID("4"),
-		Year:    "1950",
-		Country: "",
-	})
-	allEdges = append(allEdges, domain.Competition{
-		ID:      domain.CompetitionID("5"),
-		Year:    "1954",
-		Country: "",
-	})
-	allEdges = append(allEdges, domain.Competition{
-		ID:      domain.CompetitionID("6"),
-		Year:    "1958",
-		Country: "",
-	})
-	allEdges = append(allEdges, domain.Competition{
-		ID:      domain.CompetitionID("7"),
-		Year:    "1962",
-		Country: "",
-	})
-	allEdges = append(allEdges, domain.Competition{
-		ID:      domain.CompetitionID("8"),
-		Year:    "1966",
-		Country: "",
-	})
-	allEdges = append(allEdges, domain.Competition{
-		ID:      domain.CompetitionID("9"),
-		Year:    "1970",
-		Country: "",
-	})
-	allEdges = append(allEdges, domain.Competition{
-		ID:      domain.CompetitionID("10"),
-		Year:    "1974",
-		Country: "",
-	})
+	allEdges := createInstanceReserve()
 
 	var after, before string
 
@@ -114,57 +64,7 @@ func TestApplyCursorsToEdges(t *testing.T) {
 
 // HasNextPage
 func TestHasNextPage(t *testing.T) {
-	allEdges := make([]*domain.Competition, 0, 10)
-	allEdges = append(allEdges, &domain.Competition{
-		ID:      domain.CompetitionID("1"),
-		Year:    "1938",
-		Country: "",
-	})
-	allEdges = append(allEdges, &domain.Competition{
-		ID:      domain.CompetitionID("2"),
-		Year:    "1942",
-		Country: "",
-	})
-	allEdges = append(allEdges, &domain.Competition{
-		ID:      domain.CompetitionID("3"),
-		Year:    "1946",
-		Country: "",
-	})
-	allEdges = append(allEdges, &domain.Competition{
-		ID:      domain.CompetitionID("4"),
-		Year:    "1950",
-		Country: "",
-	})
-	allEdges = append(allEdges, &domain.Competition{
-		ID:      domain.CompetitionID("5"),
-		Year:    "1954",
-		Country: "",
-	})
-	allEdges = append(allEdges, &domain.Competition{
-		ID:      domain.CompetitionID("6"),
-		Year:    "1958",
-		Country: "",
-	})
-	allEdges = append(allEdges, &domain.Competition{
-		ID:      domain.CompetitionID("7"),
-		Year:    "1962",
-		Country: "",
-	})
-	allEdges = append(allEdges, &domain.Competition{
-		ID:      domain.CompetitionID("8"),
-		Year:    "1966",
-		Country: "",
-	})
-	allEdges = append(allEdges, &domain.Competition{
-		ID:      domain.CompetitionID("9"),
-		Year:    "1970",
-		Country: "",
-	})
-	allEdges = append(allEdges, &domain.Competition{
-		ID:      domain.CompetitionID("10"),
-		Year:    "1974",
-		Country: "",
-	})
+	allEdges := createInstance()
 
 	// 1 first 5 after 5 10件中 ５番目より後から５個取った場合 次のページは無い false
 	t.Run("case1", func(t *testing.T) {
@@ -233,57 +133,7 @@ func TestHasNextPage(t *testing.T) {
 
 // HasPreviousPage
 func TestHasPreviousPage(t *testing.T) {
-	allEdges := make([]*domain.Competition, 0, 10)
-	allEdges = append(allEdges, &domain.Competition{
-		ID:      domain.CompetitionID("1"),
-		Year:    "1938",
-		Country: "",
-	})
-	allEdges = append(allEdges, &domain.Competition{
-		ID:      domain.CompetitionID("2"),
-		Year:    "1942",
-		Country: "",
-	})
-	allEdges = append(allEdges, &domain.Competition{
-		ID:      domain.CompetitionID("3"),
-		Year:    "1946",
-		Country: "",
-	})
-	allEdges = append(allEdges, &domain.Competition{
-		ID:      domain.CompetitionID("4"),
-		Year:    "1950",
-		Country: "",
-	})
-	allEdges = append(allEdges, &domain.Competition{
-		ID:      domain.CompetitionID("5"),
-		Year:    "1954",
-		Country: "",
-	})
-	allEdges = append(allEdges, &domain.Competition{
-		ID:      domain.CompetitionID("6"),
-		Year:    "1958",
-		Country: "",
-	})
-	allEdges = append(allEdges, &domain.Competition{
-		ID:      domain.CompetitionID("7"),
-		Year:    "1962",
-		Country: "",
-	})
-	allEdges = append(allEdges, &domain.Competition{
-		ID:      domain.CompetitionID("8"),
-		Year:    "1966",
-		Country: "",
-	})
-	allEdges = append(allEdges, &domain.Competition{
-		ID:      domain.CompetitionID("9"),
-		Year:    "1970",
-		Country: "",
-	})
-	allEdges = append(allEdges, &domain.Competition{
-		ID:      domain.CompetitionID("10"),
-		Year:    "1974",
-		Country: "",
-	})
+	allEdges := createInstance()
 
 	// 1 first 5 after 5 10件中 ５番目より後から５個取った場合 前のページはある
 	t.Run("case1", func(t *testing.T) {
@@ -350,57 +200,7 @@ func TestHasPreviousPage(t *testing.T) {
 }
 
 func TestEdgesToReturn(t *testing.T) {
-	allEdges := make([]domain.Competition, 0, 10)
-	allEdges = append(allEdges, domain.Competition{
-		ID:      domain.CompetitionID("1"),
-		Year:    "1938",
-		Country: "",
-	})
-	allEdges = append(allEdges, domain.Competition{
-		ID:      domain.CompetitionID("2"),
-		Year:    "1942",
-		Country: "",
-	})
-	allEdges = append(allEdges, domain.Competition{
-		ID:      domain.CompetitionID("3"),
-		Year:    "1946",
-		Country: "",
-	})
-	allEdges = append(allEdges, domain.Competition{
-		ID:      domain.CompetitionID("4"),
-		Year:    "1950",
-		Country: "",
-	})
-	allEdges = append(allEdges, domain.Competition{
-		ID:      domain.CompetitionID("5"),
-		Year:    "1954",
-		Country: "",
-	})
-	allEdges = append(allEdges, domain.Competition{
-		ID:      domain.CompetitionID("6"),
-		Year:    "1958",
-		Country: "",
-	})
-	allEdges = append(allEdges, domain.Competition{
-		ID:      domain.CompetitionID("7"),
-		Year:    "1962",
-		Country: "",
-	})
-	allEdges = append(allEdges, domain.Competition{
-		ID:      domain.CompetitionID("8"),
-		Year:    "1966",
-		Country: "",
-	})
-	allEdges = append(allEdges, domain.Competition{
-		ID:      domain.CompetitionID("9"),
-		Year:    "1970",
-		Country: "",
-	})
-	allEdges = append(allEdges, domain.Competition{
-		ID:      domain.CompetitionID("10"),
-		Year:    "1974",
-		Country: "",
-	})
+	allEdges := createInstanceReserve()
 
 	// テストケース
 	// before 指定無し, after 指定無し、 first 指定無し、 last 指定無し
@@ -619,4 +419,118 @@ func TestEdgesToReturn(t *testing.T) {
 		}
 	})
 
+}
+
+func createInstance() []*domain.Competition {
+	allEdges := make([]*domain.Competition, 0, 10)
+	allEdges = append(allEdges, &domain.Competition{
+		ID:      "1",
+		Year:    "1938",
+		Country: "",
+	})
+	allEdges = append(allEdges, &domain.Competition{
+		ID:      "2",
+		Year:    "1942",
+		Country: "",
+	})
+	allEdges = append(allEdges, &domain.Competition{
+		ID:      "3",
+		Year:    "1946",
+		Country: "",
+	})
+	allEdges = append(allEdges, &domain.Competition{
+		ID:      "4",
+		Year:    "1950",
+		Country: "",
+	})
+	allEdges = append(allEdges, &domain.Competition{
+		ID:      "5",
+		Year:    "1954",
+		Country: "",
+	})
+	allEdges = append(allEdges, &domain.Competition{
+		ID:      "6",
+		Year:    "1958",
+		Country: "",
+	})
+	allEdges = append(allEdges, &domain.Competition{
+		ID:      "7",
+		Year:    "1962",
+		Country: "",
+	})
+	allEdges = append(allEdges, &domain.Competition{
+		ID:      "8",
+		Year:    "1966",
+		Country: "",
+	})
+	allEdges = append(allEdges, &domain.Competition{
+		ID:      "9",
+		Year:    "1970",
+		Country: "",
+	})
+	allEdges = append(allEdges, &domain.Competition{
+		ID:      "10",
+		Year:    "1974",
+		Country: "",
+	})
+
+	return allEdges
+
+}
+
+// Deprecated: createInstanceとの統一化を予定
+func createInstanceReserve() []domain.Competition {
+	allEdges := make([]domain.Competition, 0, 10)
+	allEdges = append(allEdges, domain.Competition{
+		ID:      domain.CompetitionID("1"),
+		Year:    "1938",
+		Country: "",
+	})
+	allEdges = append(allEdges, domain.Competition{
+		ID:      domain.CompetitionID("2"),
+		Year:    "1942",
+		Country: "",
+	})
+	allEdges = append(allEdges, domain.Competition{
+		ID:      domain.CompetitionID("3"),
+		Year:    "1946",
+		Country: "",
+	})
+	allEdges = append(allEdges, domain.Competition{
+		ID:      domain.CompetitionID("4"),
+		Year:    "1950",
+		Country: "",
+	})
+	allEdges = append(allEdges, domain.Competition{
+		ID:      domain.CompetitionID("5"),
+		Year:    "1954",
+		Country: "",
+	})
+	allEdges = append(allEdges, domain.Competition{
+		ID:      domain.CompetitionID("6"),
+		Year:    "1958",
+		Country: "",
+	})
+	allEdges = append(allEdges, domain.Competition{
+		ID:      domain.CompetitionID("7"),
+		Year:    "1962",
+		Country: "",
+	})
+	allEdges = append(allEdges, domain.Competition{
+		ID:      domain.CompetitionID("8"),
+		Year:    "1966",
+		Country: "",
+	})
+	allEdges = append(allEdges, domain.Competition{
+		ID:      domain.CompetitionID("9"),
+		Year:    "1970",
+		Country: "",
+	})
+	allEdges = append(allEdges, domain.Competition{
+		ID:      domain.CompetitionID("10"),
+		Year:    "1974",
+		Country: "",
+	})
+
+	return allEdges
 }
