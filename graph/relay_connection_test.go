@@ -8,7 +8,7 @@ import (
 
 // ApplyCursorsToEdges
 func TestApplyCursorsToEdges(t *testing.T) {
-	allEdges := createInstanceReserve()
+	allEdges := createInstance()
 
 	var after, before string
 
@@ -200,7 +200,7 @@ func TestHasPreviousPage(t *testing.T) {
 }
 
 func TestEdgesToReturn(t *testing.T) {
-	allEdges := createInstanceReserve()
+	allEdges := createInstance()
 
 	// テストケース
 	// before 指定無し, after 指定無し、 first 指定無し、 last 指定無し
@@ -224,12 +224,6 @@ func TestEdgesToReturn(t *testing.T) {
 	}
 
 	t.Run("case1: before nil/ after nil", func(t *testing.T) {
-		a := make([]*domain.Competition, 0, len(allEdges))
-		for _, edge := range allEdges {
-			e := edge
-			a = append(a, &e)
-		}
-
 		for _, tt := range testCase1 {
 			var before, after *string
 			var first, last *int
@@ -247,7 +241,7 @@ func TestEdgesToReturn(t *testing.T) {
 				last = &tt.last
 			}
 
-			edges, err := EdgesToReturn(a, before, after, first, last)
+			edges, err := EdgesToReturn(allEdges, before, after, first, last)
 			if err != nil {
 				t.Fatalf("error: %v\n", err)
 			}
@@ -278,12 +272,6 @@ func TestEdgesToReturn(t *testing.T) {
 	}
 
 	t.Run("case2: before any/ after nil", func(t *testing.T) {
-		a := make([]*domain.Competition, 0, len(allEdges))
-		for _, edge := range allEdges {
-			e := edge
-			a = append(a, &e)
-		}
-
 		for _, tt := range testCase2 {
 			var before, after *string
 			var first, last *int
@@ -301,7 +289,7 @@ func TestEdgesToReturn(t *testing.T) {
 				last = &tt.last
 			}
 
-			edges, err := EdgesToReturn(a, before, after, first, last)
+			edges, err := EdgesToReturn(allEdges, before, after, first, last)
 			if err != nil {
 				t.Fatalf("error: %v\n", err)
 			}
@@ -332,12 +320,6 @@ func TestEdgesToReturn(t *testing.T) {
 	}
 
 	t.Run("case3: before nil/ after any", func(t *testing.T) {
-		a := make([]*domain.Competition, 0, len(allEdges))
-		for _, edge := range allEdges {
-			e := edge
-			a = append(a, &e)
-		}
-
 		for _, tt := range testCase3 {
 			var before, after *string
 			var first, last *int
@@ -355,7 +337,7 @@ func TestEdgesToReturn(t *testing.T) {
 				last = &tt.last
 			}
 
-			edges, err := EdgesToReturn(a, before, after, first, last)
+			edges, err := EdgesToReturn(allEdges, before, after, first, last)
 			if err != nil {
 				t.Fatalf("error: %v\n", err)
 			}
@@ -386,12 +368,6 @@ func TestEdgesToReturn(t *testing.T) {
 	}
 
 	t.Run("case4: before any/ after any", func(t *testing.T) {
-		a := make([]*domain.Competition, 0, len(allEdges))
-		for _, edge := range allEdges {
-			e := edge
-			a = append(a, &e)
-		}
-
 		for _, tt := range testCase4 {
 			var before, after *string
 			var first, last *int
@@ -409,7 +385,7 @@ func TestEdgesToReturn(t *testing.T) {
 				last = &tt.last
 			}
 
-			edges, err := EdgesToReturn(a, before, after, first, last)
+			edges, err := EdgesToReturn(allEdges, before, after, first, last)
 			if err != nil {
 				t.Fatalf("error: %v\n", err)
 			}
@@ -421,65 +397,7 @@ func TestEdgesToReturn(t *testing.T) {
 
 }
 
-func createInstance() []*domain.Competition {
-	allEdges := make([]*domain.Competition, 0, 10)
-	allEdges = append(allEdges, &domain.Competition{
-		ID:      "1",
-		Year:    "1938",
-		Country: "",
-	})
-	allEdges = append(allEdges, &domain.Competition{
-		ID:      "2",
-		Year:    "1942",
-		Country: "",
-	})
-	allEdges = append(allEdges, &domain.Competition{
-		ID:      "3",
-		Year:    "1946",
-		Country: "",
-	})
-	allEdges = append(allEdges, &domain.Competition{
-		ID:      "4",
-		Year:    "1950",
-		Country: "",
-	})
-	allEdges = append(allEdges, &domain.Competition{
-		ID:      "5",
-		Year:    "1954",
-		Country: "",
-	})
-	allEdges = append(allEdges, &domain.Competition{
-		ID:      "6",
-		Year:    "1958",
-		Country: "",
-	})
-	allEdges = append(allEdges, &domain.Competition{
-		ID:      "7",
-		Year:    "1962",
-		Country: "",
-	})
-	allEdges = append(allEdges, &domain.Competition{
-		ID:      "8",
-		Year:    "1966",
-		Country: "",
-	})
-	allEdges = append(allEdges, &domain.Competition{
-		ID:      "9",
-		Year:    "1970",
-		Country: "",
-	})
-	allEdges = append(allEdges, &domain.Competition{
-		ID:      "10",
-		Year:    "1974",
-		Country: "",
-	})
-
-	return allEdges
-
-}
-
-// Deprecated: createInstanceとの統一化を予定
-func createInstanceReserve() []domain.Competition {
+func createInstance() []domain.Competition {
 	allEdges := make([]domain.Competition, 0, 10)
 	allEdges = append(allEdges, domain.Competition{
 		ID:      domain.CompetitionID("1"),

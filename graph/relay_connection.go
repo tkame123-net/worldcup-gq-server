@@ -6,6 +6,7 @@ import (
 )
 
 // todo: allEdgesをinterface{}へ
+// todo: step2 引数 interface{} 戻り []model.Node
 func ApplyCursorsToEdges(allEdges []domain.Competition, before *string, after *string) ([]domain.Competition, error) {
 	//Initialize edges to be allEdges.
 	edges := allEdges
@@ -48,12 +49,8 @@ func ApplyCursorsToEdges(allEdges []domain.Competition, before *string, after *s
 	return edges, nil
 }
 
-func EdgesToReturn(allEdges []*domain.Competition, before *string, after *string, first *int, last *int) ([]domain.Competition, error) {
-	resItems := make([]domain.Competition, 0, len(allEdges))
-	for _, item := range allEdges {
-		resItems = append(resItems, *item)
-	}
-	edges, err := ApplyCursorsToEdges(resItems, before, after)
+func EdgesToReturn(allEdges []domain.Competition, before *string, after *string, first *int, last *int) ([]domain.Competition, error) {
+	edges, err := ApplyCursorsToEdges(allEdges, before, after)
 	if err != nil {
 		return nil, err
 	}
@@ -86,16 +83,11 @@ func EdgesToReturn(allEdges []*domain.Competition, before *string, after *string
 	return edges, nil
 }
 
-func HasPreviousPage(allEdges []*domain.Competition, before *string, after *string, first *int, last *int) (bool, error) {
-	resItems := make([]domain.Competition, 0, len(allEdges))
-	for _, item := range allEdges {
-		resItems = append(resItems, *item)
-	}
-
+func HasPreviousPage(allEdges []domain.Competition, before *string, after *string, first *int, last *int) (bool, error) {
 	// 1 If last is set:
 	if last != nil {
 		// 1-a Let edges be the result of calling ApplyCursorsToEdges(allEdges, before, after).
-		edges, err := ApplyCursorsToEdges(resItems, before, after)
+		edges, err := ApplyCursorsToEdges(allEdges, before, after)
 		if err != nil {
 			return false, err
 		}
@@ -108,8 +100,8 @@ func HasPreviousPage(allEdges []*domain.Competition, before *string, after *stri
 	if after != nil {
 		// 2-a If the server can efficiently determine that elements exist prior to after, return true.
 		afterIndex := 0
-		for i := range resItems {
-			if string(resItems[i].ID) == *after {
+		for i := range allEdges {
+			if string(allEdges[i].ID) == *after {
 				afterIndex = i
 				break
 			}
@@ -122,16 +114,11 @@ func HasPreviousPage(allEdges []*domain.Competition, before *string, after *stri
 	return false, nil
 }
 
-func HasNextPage(allEdges []*domain.Competition, before *string, after *string, first *int, last *int) (bool, error) {
-	resItems := make([]domain.Competition, 0, len(allEdges))
-	for _, item := range allEdges {
-		resItems = append(resItems, *item)
-	}
-
+func HasNextPage(allEdges []domain.Competition, before *string, after *string, first *int, last *int) (bool, error) {
 	// 1 If first is set:
 	if first != nil {
 		// 1-a Let edges be the result of calling ApplyCursorsToEdges(allEdges, before, after).
-		edges, err := ApplyCursorsToEdges(resItems, before, after)
+		edges, err := ApplyCursorsToEdges(allEdges, before, after)
 		if err != nil {
 			return false, err
 		}
@@ -143,14 +130,14 @@ func HasNextPage(allEdges []*domain.Competition, before *string, after *string, 
 	// 2 If before is set:
 	if before != nil {
 		// 2-a If the server can efficiently determine that elements exist following before, return true
-		beforeIndex := len(resItems)
-		for i := range resItems {
-			if string(resItems[i].ID) == *before {
+		beforeIndex := len(allEdges)
+		for i := range allEdges {
+			if string(allEdges[i].ID) == *before {
 				beforeIndex = i
 				break
 			}
 		}
-		if beforeIndex < len(resItems) {
+		if beforeIndex < len(allEdges) {
 			return true, nil
 		}
 	}

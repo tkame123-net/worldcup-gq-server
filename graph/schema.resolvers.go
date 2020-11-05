@@ -20,18 +20,24 @@ func (r *queryResolver) AllCompetition(ctx context.Context, first *int, last *in
 		log.Fatalf("error: %v", err)
 	}
 
+	a := make([]domain.Competition, 0, len(allCompetitions))
+	for _, edge := range allCompetitions {
+		e := *edge
+		a = append(a, e)
+	}
+
 	// CursorsToEdge/EdgesToReturn
-	edges, err := EdgesToReturn(allCompetitions, before, after, first, last)
+	edges, err := EdgesToReturn(a, before, after, first, last)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
 
 	// step3: PageInfoの生成
-	hasNextPage, err := HasNextPage(allCompetitions, before, after, first, last)
+	hasNextPage, err := HasNextPage(a, before, after, first, last)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
-	hasPreviousPage, err := HasPreviousPage(allCompetitions, before, after, first, last)
+	hasPreviousPage, err := HasPreviousPage(a, before, after, first, last)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
