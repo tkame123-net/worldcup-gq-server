@@ -7,3 +7,5 @@ type Competition struct {
 	Year    string
 	Country string
 }
+
+func (Competition) IsNode() {}

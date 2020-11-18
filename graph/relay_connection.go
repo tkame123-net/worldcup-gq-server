@@ -2,21 +2,59 @@ package graph
 
 import (
 	"errors"
+	"fmt"
+	"log"
+	"reflect"
 	"tkame123-net/worldcup-gq-server/domain"
 )
 
-// todo: allEdgesをinterface{}へ
-// todo: step2 引数 interface{} 戻り []model.Node
-func ApplyCursorsToEdges(allEdges []domain.Competition, before *string, after *string) ([]domain.Competition, error) {
+// todo: allEdgesを[]interface{}へ
+// edgesをreflectオブジェクトに格納する。
+// reflectオブジェクトのメソッドによって、
+// edgesがsliceであることを確認する
+// slice ならばrange で回す
+// 中身にIDプロパティがある場合は、現状のロジックを実行させる。
+// IDプロパティのない場合はエラー
+
+// todo: step2 引数 []interface{} 戻り []model.Node
+// []model.Node では作れないので、
+// []model.competition []model.matchで戻す
+func ApplyCursorsToEdges(allEdges interface{}, before *string, after *string) ([]domain.Node, error) {
+
+	if reflect.TypeOf(allEdges).Kind() != reflect.Slice {
+		return nil, errors.New("no slice model.Node")
+	}
+	s := reflect.ValueOf(allEdges)
+	slice := make([]domain.Node, 0, s.Len())
+	for i := 0; i < s.Len(); i++ {
+		f := s.Index(i).Interface().(domain.Node)
+		slice = append(slice, f)
+	}
 	//Initialize edges to be allEdges.
-	edges := allEdges
+	edges := slice
 	// 2 If after is set:
 	if after != nil {
 		// a Let afterEdge be the edge in edges whose cursor is equal to the after argument.
 		afterEdge := ""
 		afterEdgeIndex := 0
+
 		for i := range edges {
-			if string(edges[i].ID) == *after {
+			s := reflect.ValueOf(edges[i])
+			if s.Kind() == reflect.Ptr {
+				s = reflect.Indirect(s)
+			}
+			if s.Kind() != reflect.Struct {
+				log.Fatal("unexpected type")
+			}
+			typeOfT := s.Type()
+			var edgeID string
+			for i := 0; i < s.NumField(); i++ {
+				f := s.Field(i)
+				if typeOfT.Field(i).Name == "ID" {
+					edgeID = f.String()
+				}
+			}
+			if edgeID == *after {
 				afterEdge = *after
 				afterEdgeIndex = i
 				break
@@ -34,7 +72,22 @@ func ApplyCursorsToEdges(allEdges []domain.Competition, before *string, after *s
 		beforeEdge := ""
 		beforeEdgeIndex := 0
 		for i := range edges {
-			if string(edges[i].ID) == *before {
+			s := reflect.ValueOf(edges[i])
+			if s.Kind() == reflect.Ptr {
+				s = reflect.Indirect(s)
+			}
+			if s.Kind() != reflect.Struct {
+				log.Fatal("unexpected type")
+			}
+			typeOfT := s.Type()
+			var edgeID string
+			for i := 0; i < s.NumField(); i++ {
+				f := s.Field(i)
+				if typeOfT.Field(i).Name == "ID" {
+					edgeID = f.String()
+				}
+			}
+			if edgeID == *before {
 				beforeEdge = *before
 				beforeEdgeIndex = i
 				break
@@ -49,8 +102,9 @@ func ApplyCursorsToEdges(allEdges []domain.Competition, before *string, after *s
 	return edges, nil
 }
 
-func EdgesToReturn(allEdges []domain.Competition, before *string, after *string, first *int, last *int) ([]domain.Competition, error) {
+func EdgesToReturn(allEdges interface{}, before *string, after *string, first *int, last *int) ([]domain.Node, error) {
 	edges, err := ApplyCursorsToEdges(allEdges, before, after)
+	//fmt.Printf("%v\n", edges)
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +137,13 @@ func EdgesToReturn(allEdges []domain.Competition, before *string, after *string,
 	return edges, nil
 }
 
-func HasPreviousPage(allEdges []domain.Competition, before *string, after *string, first *int, last *int) (bool, error) {
+func HasPreviousPage(allEdges interface{}, before *string, after *string, first *int, last *int) (bool, error) {
+	if reflect.TypeOf(allEdges).Kind() != reflect.Slice {
+		return false, errors.New("no slice model.Node")
+	}
+	s := reflect.ValueOf(allEdges)
+	slice, _ := s.Interface().([]domain.Node)
+
 	// 1 If last is set:
 	if last != nil {
 		// 1-a Let edges be the result of calling ApplyCursorsToEdges(allEdges, before, after).
@@ -100,8 +160,20 @@ func HasPreviousPage(allEdges []domain.Competition, before *string, after *strin
 	if after != nil {
 		// 2-a If the server can efficiently determine that elements exist prior to after, return true.
 		afterIndex := 0
-		for i := range allEdges {
-			if string(allEdges[i].ID) == *after {
+
+		for i := range slice {
+			s := reflect.ValueOf(&slice[i]).Elem()
+			typeOfT := s.Type()
+			var allEdgeID string
+			for i := 0; i < s.NumField(); i++ {
+				f := s.Field(i)
+				fmt.Printf("%d: %s %s = %v\n", i,
+					typeOfT.Field(i).Name, f.Type(), f.Interface())
+				if typeOfT.Field(i).Name == "ID" {
+					allEdgeID = f.Interface().(string)
+				}
+			}
+			if allEdgeID == *after {
 				afterIndex = i
 				break
 			}
@@ -114,7 +186,12 @@ func HasPreviousPage(allEdges []domain.Competition, before *string, after *strin
 	return false, nil
 }
 
-func HasNextPage(allEdges []domain.Competition, before *string, after *string, first *int, last *int) (bool, error) {
+func HasNextPage(allEdges interface{}, before *string, after *string, first *int, last *int) (bool, error) {
+	if reflect.TypeOf(allEdges).Kind() != reflect.Slice {
+		return false, errors.New("no slice model.Node")
+	}
+	s := reflect.ValueOf(allEdges)
+	slice, _ := s.Interface().([]domain.Node)
 	// 1 If first is set:
 	if first != nil {
 		// 1-a Let edges be the result of calling ApplyCursorsToEdges(allEdges, before, after).
@@ -130,14 +207,25 @@ func HasNextPage(allEdges []domain.Competition, before *string, after *string, f
 	// 2 If before is set:
 	if before != nil {
 		// 2-a If the server can efficiently determine that elements exist following before, return true
-		beforeIndex := len(allEdges)
-		for i := range allEdges {
-			if string(allEdges[i].ID) == *before {
+		beforeIndex := len(slice)
+		for i := range slice {
+			s := reflect.ValueOf(&slice[i]).Elem()
+			typeOfT := s.Type()
+			var allEdgeID string
+			for i := 0; i < s.NumField(); i++ {
+				f := s.Field(i)
+				fmt.Printf("%d: %s %s = %v\n", i,
+					typeOfT.Field(i).Name, f.Type(), f.Interface())
+				if typeOfT.Field(i).Name == "ID" {
+					allEdgeID = f.Interface().(string)
+				}
+			}
+			if allEdgeID == *before {
 				beforeIndex = i
 				break
 			}
 		}
-		if beforeIndex < len(allEdges) {
+		if beforeIndex < len(slice) {
 			return true, nil
 		}
 	}

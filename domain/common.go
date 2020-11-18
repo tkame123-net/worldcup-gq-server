@@ -5,3 +5,7 @@ type GlobalID struct {
 	EntityName string
 	ID         string
 }
+
+type Node interface {
+	IsNode()
+}
