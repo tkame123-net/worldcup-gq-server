@@ -27,9 +27,15 @@ func (r *queryResolver) AllCompetition(ctx context.Context, first *int, last *in
 	}
 
 	// CursorsToEdge/EdgesToReturn
-	edges, err := EdgesToReturn(a, before, after, first, last)
+	nodes, err := EdgesToReturn(a, before, after, first, last)
 	if err != nil {
 		log.Fatalf("error: %v", err)
+	}
+
+	// domain.Nodeからdomain.Competitionへの型キャスト
+	edges := make([]domain.Competition, 0, len(nodes))
+	for _, v := range nodes {
+		edges = append(edges, v.(domain.Competition))
 	}
 
 	// step3: PageInfoの生成

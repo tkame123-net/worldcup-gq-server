@@ -11,7 +11,6 @@ func TestApplyCursorsToEdges(t *testing.T) {
 	allEdges := createInstance()
 
 	var after, before string
-
 	// 1 afterが存在して beforeが存在しない場合
 	after = "3"
 	edges, err := ApplyCursorsToEdges(allEdges, nil, &after)
@@ -245,9 +244,18 @@ func TestEdgesToReturn(t *testing.T) {
 			if err != nil {
 				t.Fatalf("error: %v\n", err)
 			}
-			assert.Equal(t, tt.out, len(edges), tt.pt+":01")
-			assert.Equal(t, tt.outCursorOfFirst, string(edges[0].ID), tt.pt+":02")
-			assert.Equal(t, tt.outCursorOfEnd, string(edges[len(edges)-1].ID), tt.pt+":03")
+
+			// domain.Nodeからdomain.Competitionへの型キャスト
+			items := make([]domain.Competition, 0, len(edges))
+			for _, v := range edges {
+				f := v.(domain.Competition)
+				items = append(items, f)
+			}
+			//fmt.Printf("%v\n", edges)
+
+			assert.Equal(t, tt.out, len(items), tt.pt+":01")
+			assert.Equal(t, tt.outCursorOfFirst, string(items[0].ID), tt.pt+":02")
+			assert.Equal(t, tt.outCursorOfEnd, string(items[len(items)-1].ID), tt.pt+":03")
 		}
 	})
 
@@ -293,9 +301,16 @@ func TestEdgesToReturn(t *testing.T) {
 			if err != nil {
 				t.Fatalf("error: %v\n", err)
 			}
-			assert.Equal(t, tt.out, len(edges), tt.pt+":01")
-			assert.Equal(t, tt.outCursorOfFirst, string(edges[0].ID), tt.pt+":02")
-			assert.Equal(t, tt.outCursorOfEnd, string(edges[len(edges)-1].ID), tt.pt+":03")
+
+			// domain.Nodeからdomain.Competitionへの型キャスト
+			items := make([]domain.Competition, 0, len(edges))
+			for _, v := range edges {
+				items = append(items, v.(domain.Competition))
+			}
+
+			assert.Equal(t, tt.out, len(items), tt.pt+":01")
+			assert.Equal(t, tt.outCursorOfFirst, string(items[0].ID), tt.pt+":02")
+			assert.Equal(t, tt.outCursorOfEnd, string(items[len(items)-1].ID), tt.pt+":03")
 		}
 	})
 
@@ -341,9 +356,16 @@ func TestEdgesToReturn(t *testing.T) {
 			if err != nil {
 				t.Fatalf("error: %v\n", err)
 			}
-			assert.Equal(t, tt.out, len(edges), tt.pt+":01")
-			assert.Equal(t, tt.outCursorOfFirst, string(edges[0].ID), tt.pt+":02")
-			assert.Equal(t, tt.outCursorOfEnd, string(edges[len(edges)-1].ID), tt.pt+":03")
+
+			// domain.Nodeからdomain.Competitionへの型キャスト
+			items := make([]domain.Competition, 0, len(edges))
+			for _, v := range edges {
+				items = append(items, v.(domain.Competition))
+			}
+
+			assert.Equal(t, tt.out, len(items), tt.pt+":01")
+			assert.Equal(t, tt.outCursorOfFirst, string(items[0].ID), tt.pt+":02")
+			assert.Equal(t, tt.outCursorOfEnd, string(items[len(items)-1].ID), tt.pt+":03")
 		}
 	})
 
@@ -389,9 +411,16 @@ func TestEdgesToReturn(t *testing.T) {
 			if err != nil {
 				t.Fatalf("error: %v\n", err)
 			}
-			assert.Equal(t, tt.out, len(edges), tt.pt+":01")
-			assert.Equal(t, tt.outCursorOfFirst, string(edges[0].ID), tt.pt+":02")
-			assert.Equal(t, tt.outCursorOfEnd, string(edges[len(edges)-1].ID), tt.pt+":03")
+
+			// domain.Nodeからdomain.Competitionへの型キャスト
+			items := make([]domain.Competition, 0, len(edges))
+			for _, v := range edges {
+				items = append(items, v.(domain.Competition))
+			}
+
+			assert.Equal(t, tt.out, len(items), tt.pt+":01")
+			assert.Equal(t, tt.outCursorOfFirst, string(items[0].ID), tt.pt+":02")
+			assert.Equal(t, tt.outCursorOfEnd, string(items[len(items)-1].ID), tt.pt+":03")
 		}
 	})
 
