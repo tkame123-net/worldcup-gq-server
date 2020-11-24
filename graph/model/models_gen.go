@@ -39,6 +39,16 @@ type Match struct {
 
 func (Match) IsNode() {}
 
+type MatchConnection struct {
+	Edges    []*MatchEdge `json:"edges"`
+	PageInfo *PageInfo    `json:"pageInfo"`
+}
+
+type MatchEdge struct {
+	Cursor string `json:"cursor"`
+	Node   *Match `json:"node"`
+}
+
 type PageInfo struct {
 	HasNextPage     bool    `json:"hasNextPage"`
 	HasPreviousPage bool    `json:"hasPreviousPage"`

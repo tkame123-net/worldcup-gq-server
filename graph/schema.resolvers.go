@@ -71,47 +71,62 @@ func (r *queryResolver) AllCompetition(ctx context.Context, first *int, last *in
 	return competitionConnection, nil
 }
 
-func (r *queryResolver) AllMatch(ctx context.Context, filterYear model.Filter) ([]*model.Match, error) {
+func (r *queryResolver) AllMatch(ctx context.Context, first *int, last *int, after *string, before *string) (*model.MatchConnection, error) {
 	ctx = context.Background()
-	if filterYear.Eq != "" {
-		res, err := r.MongoMatch.GetAllByYear(ctx, filterYear.Eq, domain.FilterType_EQ)
-		if err != nil {
-			log.Fatalf("error: %v", err)
-		}
-
-		resItems := make([]*model.Match, 0, len(res))
-		for _, item := range res {
-			resItems = append(resItems, ToMatchResponse(item))
-		}
-
-		return resItems, nil
-	}
-
-	if filterYear.Regex != "" {
-		res, err := r.MongoMatch.GetAllByYear(ctx, filterYear.Regex, domain.FilterType_REGEX)
-		if err != nil {
-			log.Fatalf("error: %v", err)
-		}
-
-		resItems := make([]*model.Match, 0, len(res))
-		for _, item := range res {
-			resItems = append(resItems, ToMatchResponse(item))
-		}
-
-		return resItems, nil
-	}
-
-	res, err := r.MongoMatch.GetAll(ctx)
+	allMatch, err := r.MongoMatch.GetAll(ctx)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
 
-	resItems := make([]*model.Match, 0, len(res))
-	for _, item := range res {
-		resItems = append(resItems, ToMatchResponse(item))
+	a := make([]domain.Match, 0, len(allMatch))
+	for _, edge := range allMatch {
+		e := *edge
+		a = append(a, e)
 	}
 
-	return resItems, nil
+	// CursorsToEdge/EdgesToReturn
+	nodes, err := EdgesToReturn(a, before, after, first, last)
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
+
+	// domain.Nodeからdomain.Competitionへの型キャスト
+	edges := make([]domain.Match, 0, len(nodes))
+	for _, v := range nodes {
+		edges = append(edges, v.(domain.Match))
+	}
+
+	// step3: PageInfoの生成
+	hasNextPage, err := HasNextPage(a, before, after, first, last)
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
+	hasPreviousPage, err := HasPreviousPage(a, before, after, first, last)
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
+	var startCursor, endCursor string
+	if len(edges) > 0 {
+		startCursor = string(edges[0].ID)
+		endCursor = string(edges[len(edges)-1].ID)
+	}
+	pageInfo := model.PageInfo{
+		HasNextPage:     hasNextPage,
+		HasPreviousPage: hasPreviousPage,
+		StartCursor:     &startCursor,
+		EndCursor:       &endCursor,
+	}
+
+	// matchEdges
+	matchEdges := make([]*model.MatchEdge, 0, len(edges))
+	for _, edge := range edges {
+		matchEdges = append(matchEdges, ToMatchEdgeResponse(&edge))
+	}
+
+	// matchConnection に変換
+	matchConnection := ToMatchConnectionResponse(matchEdges, &pageInfo)
+
+	return matchConnection, nil
 }
 
 func (r *queryResolver) AllPlayer(ctx context.Context, filterPlayerName model.Filter) ([]*model.Player, error) {
