@@ -42,6 +42,17 @@ type Match implements Node{
 #  awayTeamName: String!
 }
 
+type MatchConnection{
+  edges: [MatchEdge]
+  pageInfo: PageInfo!
+}
+
+type MatchEdge {
+  cursor: String!
+  node: Match
+}
+
+
 input Filter {
   eq: String! = ""
   regex: String! = ""
@@ -54,7 +65,7 @@ type Player {
 
 type Query {
   allCompetition(first: Int, last: Int, after: String, before: String): CompetitionConnection
-  allMatch(filterYear: Filter! = {}): [Match]!
+  allMatch(first: Int, last: Int, after: String, before: String): MatchConnection
   allPlayer(filterPlayerName: Filter! = {}): [Player]!
   node(id: ID!): Node
 }

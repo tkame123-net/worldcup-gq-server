@@ -67,6 +67,16 @@ type ComplexityRoot struct {
 		Year    func(childComplexity int) int
 	}
 
+	MatchConnection struct {
+		Edges    func(childComplexity int) int
+		PageInfo func(childComplexity int) int
+	}
+
+	MatchEdge struct {
+		Cursor func(childComplexity int) int
+		Node   func(childComplexity int) int
+	}
+
 	PageInfo struct {
 		EndCursor       func(childComplexity int) int
 		HasNextPage     func(childComplexity int) int
@@ -81,7 +91,7 @@ type ComplexityRoot struct {
 
 	Query struct {
 		AllCompetition func(childComplexity int, first *int, last *int, after *string, before *string) int
-		AllMatch       func(childComplexity int, filterYear model.Filter) int
+		AllMatch       func(childComplexity int, first *int, last *int, after *string, before *string) int
 		AllPlayer      func(childComplexity int, filterPlayerName model.Filter) int
 		Node           func(childComplexity int, id string) int
 	}
@@ -89,7 +99,7 @@ type ComplexityRoot struct {
 
 type QueryResolver interface {
 	AllCompetition(ctx context.Context, first *int, last *int, after *string, before *string) (*model.CompetitionConnection, error)
-	AllMatch(ctx context.Context, filterYear model.Filter) ([]*model.Match, error)
+	AllMatch(ctx context.Context, first *int, last *int, after *string, before *string) (*model.MatchConnection, error)
 	AllPlayer(ctx context.Context, filterPlayerName model.Filter) ([]*model.Player, error)
 	Node(ctx context.Context, id string) (model.Node, error)
 }
@@ -193,6 +203,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Match.Year(childComplexity), true
 
+	case "MatchConnection.edges":
+		if e.complexity.MatchConnection.Edges == nil {
+			break
+		}
+
+		return e.complexity.MatchConnection.Edges(childComplexity), true
+
+	case "MatchConnection.pageInfo":
+		if e.complexity.MatchConnection.PageInfo == nil {
+			break
+		}
+
+		return e.complexity.MatchConnection.PageInfo(childComplexity), true
+
+	case "MatchEdge.cursor":
+		if e.complexity.MatchEdge.Cursor == nil {
+			break
+		}
+
+		return e.complexity.MatchEdge.Cursor(childComplexity), true
+
+	case "MatchEdge.node":
+		if e.complexity.MatchEdge.Node == nil {
+			break
+		}
+
+		return e.complexity.MatchEdge.Node(childComplexity), true
+
 	case "PageInfo.endCursor":
 		if e.complexity.PageInfo.EndCursor == nil {
 			break
@@ -257,7 +295,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.AllMatch(childComplexity, args["filterYear"].(model.Filter)), true
+		return e.complexity.Query.AllMatch(childComplexity, args["first"].(*int), args["last"].(*int), args["after"].(*string), args["before"].(*string)), true
 
 	case "Query.allPlayer":
 		if e.complexity.Query.AllPlayer == nil {
@@ -333,7 +371,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "graph/schema.graphqls", Input: `# GraphQL schema example
+	&ast.Source{Name: "graph/schema.graphqls", Input: `# GraphQL schema example
 #
 # https://gqlgen.com/getting-started/
 
@@ -377,6 +415,17 @@ type Match implements Node{
 #  awayTeamName: String!
 }
 
+type MatchConnection{
+  edges: [MatchEdge]
+  pageInfo: PageInfo!
+}
+
+type MatchEdge {
+  cursor: String!
+  node: Match
+}
+
+
 input Filter {
   eq: String! = ""
   regex: String! = ""
@@ -389,7 +438,7 @@ type Player {
 
 type Query {
   allCompetition(first: Int, last: Int, after: String, before: String): CompetitionConnection
-  allMatch(filterYear: Filter! = {}): [Match]!
+  allMatch(first: Int, last: Int, after: String, before: String): MatchConnection
   allPlayer(filterPlayerName: Filter! = {}): [Player]!
   node(id: ID!): Node
 }
@@ -409,7 +458,6 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	args := map[string]interface{}{}
 	var arg0 string
 	if tmp, ok := rawArgs["name"]; ok {
-		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("name"))
 		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -424,7 +472,6 @@ func (ec *executionContext) field_Query_allCompetition_args(ctx context.Context,
 	args := map[string]interface{}{}
 	var arg0 *int
 	if tmp, ok := rawArgs["first"]; ok {
-		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("first"))
 		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -433,7 +480,6 @@ func (ec *executionContext) field_Query_allCompetition_args(ctx context.Context,
 	args["first"] = arg0
 	var arg1 *int
 	if tmp, ok := rawArgs["last"]; ok {
-		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("last"))
 		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -442,7 +488,6 @@ func (ec *executionContext) field_Query_allCompetition_args(ctx context.Context,
 	args["last"] = arg1
 	var arg2 *string
 	if tmp, ok := rawArgs["after"]; ok {
-		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("after"))
 		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -451,7 +496,6 @@ func (ec *executionContext) field_Query_allCompetition_args(ctx context.Context,
 	args["after"] = arg2
 	var arg3 *string
 	if tmp, ok := rawArgs["before"]; ok {
-		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("before"))
 		arg3, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -464,15 +508,38 @@ func (ec *executionContext) field_Query_allCompetition_args(ctx context.Context,
 func (ec *executionContext) field_Query_allMatch_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.Filter
-	if tmp, ok := rawArgs["filterYear"]; ok {
-		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("filterYear"))
-		arg0, err = ec.unmarshalNFilter2tkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐFilter(ctx, tmp)
+	var arg0 *int
+	if tmp, ok := rawArgs["first"]; ok {
+		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["filterYear"] = arg0
+	args["first"] = arg0
+	var arg1 *int
+	if tmp, ok := rawArgs["last"]; ok {
+		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["last"] = arg1
+	var arg2 *string
+	if tmp, ok := rawArgs["after"]; ok {
+		arg2, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["after"] = arg2
+	var arg3 *string
+	if tmp, ok := rawArgs["before"]; ok {
+		arg3, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["before"] = arg3
 	return args, nil
 }
 
@@ -481,7 +548,6 @@ func (ec *executionContext) field_Query_allPlayer_args(ctx context.Context, rawA
 	args := map[string]interface{}{}
 	var arg0 model.Filter
 	if tmp, ok := rawArgs["filterPlayerName"]; ok {
-		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("filterPlayerName"))
 		arg0, err = ec.unmarshalNFilter2tkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐFilter(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -496,7 +562,6 @@ func (ec *executionContext) field_Query_node_args(ctx context.Context, rawArgs m
 	args := map[string]interface{}{}
 	var arg0 string
 	if tmp, ok := rawArgs["id"]; ok {
-		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("id"))
 		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -511,7 +576,6 @@ func (ec *executionContext) field___Type_enumValues_args(ctx context.Context, ra
 	args := map[string]interface{}{}
 	var arg0 bool
 	if tmp, ok := rawArgs["includeDeprecated"]; ok {
-		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("includeDeprecated"))
 		arg0, err = ec.unmarshalOBoolean2bool(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -526,7 +590,6 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 	args := map[string]interface{}{}
 	var arg0 bool
 	if tmp, ok := rawArgs["includeDeprecated"]; ok {
-		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("includeDeprecated"))
 		arg0, err = ec.unmarshalOBoolean2bool(ctx, tmp)
 		if err != nil {
 			return nil, err
@@ -946,6 +1009,136 @@ func (ec *executionContext) _Match_city(ctx context.Context, field graphql.Colle
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _MatchConnection_edges(ctx context.Context, field graphql.CollectedField, obj *model.MatchConnection) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "MatchConnection",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Edges, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.MatchEdge)
+	fc.Result = res
+	return ec.marshalOMatchEdge2ᚕᚖtkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐMatchEdge(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _MatchConnection_pageInfo(ctx context.Context, field graphql.CollectedField, obj *model.MatchConnection) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "MatchConnection",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PageInfo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.PageInfo)
+	fc.Result = res
+	return ec.marshalNPageInfo2ᚖtkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐPageInfo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _MatchEdge_cursor(ctx context.Context, field graphql.CollectedField, obj *model.MatchEdge) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "MatchEdge",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Cursor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _MatchEdge_node(ctx context.Context, field graphql.CollectedField, obj *model.MatchEdge) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "MatchEdge",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Node, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Match)
+	fc.Result = res
+	return ec.marshalOMatch2ᚖtkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐMatch(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _PageInfo_hasNextPage(ctx context.Context, field graphql.CollectedField, obj *model.PageInfo) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -1203,21 +1396,18 @@ func (ec *executionContext) _Query_allMatch(ctx context.Context, field graphql.C
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().AllMatch(rctx, args["filterYear"].(model.Filter))
+		return ec.resolvers.Query().AllMatch(rctx, args["first"].(*int), args["last"].(*int), args["after"].(*string), args["before"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Match)
+	res := resTmp.(*model.MatchConnection)
 	fc.Result = res
-	return ec.marshalNMatch2ᚕᚖtkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐMatch(ctx, field.Selections, res)
+	return ec.marshalOMatchConnection2ᚖtkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐMatchConnection(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_allPlayer(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -2431,16 +2621,12 @@ func (ec *executionContext) unmarshalInputFilter(ctx context.Context, obj interf
 		switch k {
 		case "eq":
 			var err error
-
-			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("eq"))
 			it.Eq, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
 		case "regex":
 			var err error
-
-			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("regex"))
 			it.Regex, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
@@ -2624,6 +2810,64 @@ func (ec *executionContext) _Match(ctx context.Context, sel ast.SelectionSet, ob
 	return out
 }
 
+var matchConnectionImplementors = []string{"MatchConnection"}
+
+func (ec *executionContext) _MatchConnection(ctx context.Context, sel ast.SelectionSet, obj *model.MatchConnection) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, matchConnectionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("MatchConnection")
+		case "edges":
+			out.Values[i] = ec._MatchConnection_edges(ctx, field, obj)
+		case "pageInfo":
+			out.Values[i] = ec._MatchConnection_pageInfo(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var matchEdgeImplementors = []string{"MatchEdge"}
+
+func (ec *executionContext) _MatchEdge(ctx context.Context, sel ast.SelectionSet, obj *model.MatchEdge) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, matchEdgeImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("MatchEdge")
+		case "cursor":
+			out.Values[i] = ec._MatchEdge_cursor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "node":
+			out.Values[i] = ec._MatchEdge_node(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var pageInfoImplementors = []string{"PageInfo"}
 
 func (ec *executionContext) _PageInfo(ctx context.Context, sel ast.SelectionSet, obj *model.PageInfo) graphql.Marshaler {
@@ -2724,9 +2968,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_allMatch(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&invalids, 1)
-				}
 				return res
 			})
 		case "allPlayer":
@@ -3015,8 +3256,7 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 // region    ***************************** type.gotpl *****************************
 
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
-	res, err := graphql.UnmarshalBoolean(v)
-	return res, graphql.WrapErrorWithInputPath(ctx, err)
+	return graphql.UnmarshalBoolean(v)
 }
 
 func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.SelectionSet, v bool) graphql.Marshaler {
@@ -3030,13 +3270,11 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 }
 
 func (ec *executionContext) unmarshalNFilter2tkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐFilter(ctx context.Context, v interface{}) (model.Filter, error) {
-	res, err := ec.unmarshalInputFilter(ctx, v)
-	return res, graphql.WrapErrorWithInputPath(ctx, err)
+	return ec.unmarshalInputFilter(ctx, v)
 }
 
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
-	res, err := graphql.UnmarshalID(v)
-	return res, graphql.WrapErrorWithInputPath(ctx, err)
+	return graphql.UnmarshalID(v)
 }
 
 func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
@@ -3050,8 +3288,7 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 }
 
 func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
-	res, err := graphql.UnmarshalInt(v)
-	return res, graphql.WrapErrorWithInputPath(ctx, err)
+	return graphql.UnmarshalInt(v)
 }
 
 func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
@@ -3064,41 +3301,8 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
-func (ec *executionContext) marshalNMatch2ᚕᚖtkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐMatch(ctx context.Context, sel ast.SelectionSet, v []*model.Match) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalOMatch2ᚖtkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐMatch(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-	return ret
+func (ec *executionContext) marshalNPageInfo2tkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐPageInfo(ctx context.Context, sel ast.SelectionSet, v model.PageInfo) graphql.Marshaler {
+	return ec._PageInfo(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNPageInfo2ᚖtkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐPageInfo(ctx context.Context, sel ast.SelectionSet, v *model.PageInfo) graphql.Marshaler {
@@ -3149,8 +3353,7 @@ func (ec *executionContext) marshalNPlayer2ᚕᚖtkame123ᚑnetᚋworldcupᚑgq�
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
-	res, err := graphql.UnmarshalString(v)
-	return res, graphql.WrapErrorWithInputPath(ctx, err)
+	return graphql.UnmarshalString(v)
 }
 
 func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
@@ -3205,8 +3408,7 @@ func (ec *executionContext) marshalN__Directive2ᚕgithubᚗcomᚋ99designsᚋgq
 }
 
 func (ec *executionContext) unmarshalN__DirectiveLocation2string(ctx context.Context, v interface{}) (string, error) {
-	res, err := graphql.UnmarshalString(v)
-	return res, graphql.WrapErrorWithInputPath(ctx, err)
+	return graphql.UnmarshalString(v)
 }
 
 func (ec *executionContext) marshalN__DirectiveLocation2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
@@ -3231,10 +3433,9 @@ func (ec *executionContext) unmarshalN__DirectiveLocation2ᚕstringᚄ(ctx conte
 	var err error
 	res := make([]string, len(vSlice))
 	for i := range vSlice {
-		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithIndex(i))
 		res[i], err = ec.unmarshalN__DirectiveLocation2string(ctx, vSlice[i])
 		if err != nil {
-			return nil, graphql.WrapErrorWithInputPath(ctx, err)
+			return nil, err
 		}
 	}
 	return res, nil
@@ -3378,8 +3579,7 @@ func (ec *executionContext) marshalN__Type2ᚖgithubᚗcomᚋ99designsᚋgqlgen�
 }
 
 func (ec *executionContext) unmarshalN__TypeKind2string(ctx context.Context, v interface{}) (string, error) {
-	res, err := graphql.UnmarshalString(v)
-	return res, graphql.WrapErrorWithInputPath(ctx, err)
+	return graphql.UnmarshalString(v)
 }
 
 func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
@@ -3393,8 +3593,7 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 }
 
 func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
-	res, err := graphql.UnmarshalBoolean(v)
-	return res, graphql.WrapErrorWithInputPath(ctx, err)
+	return graphql.UnmarshalBoolean(v)
 }
 
 func (ec *executionContext) marshalOBoolean2bool(ctx context.Context, sel ast.SelectionSet, v bool) graphql.Marshaler {
@@ -3405,15 +3604,19 @@ func (ec *executionContext) unmarshalOBoolean2ᚖbool(ctx context.Context, v int
 	if v == nil {
 		return nil, nil
 	}
-	res, err := graphql.UnmarshalBoolean(v)
-	return &res, graphql.WrapErrorWithInputPath(ctx, err)
+	res, err := ec.unmarshalOBoolean2bool(ctx, v)
+	return &res, err
 }
 
 func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast.SelectionSet, v *bool) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return graphql.MarshalBoolean(*v)
+	return ec.marshalOBoolean2bool(ctx, sel, *v)
+}
+
+func (ec *executionContext) marshalOCompetition2tkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐCompetition(ctx context.Context, sel ast.SelectionSet, v model.Competition) graphql.Marshaler {
+	return ec._Competition(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalOCompetition2ᚖtkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐCompetition(ctx context.Context, sel ast.SelectionSet, v *model.Competition) graphql.Marshaler {
@@ -3423,11 +3626,19 @@ func (ec *executionContext) marshalOCompetition2ᚖtkame123ᚑnetᚋworldcupᚑg
 	return ec._Competition(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalOCompetitionConnection2tkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐCompetitionConnection(ctx context.Context, sel ast.SelectionSet, v model.CompetitionConnection) graphql.Marshaler {
+	return ec._CompetitionConnection(ctx, sel, &v)
+}
+
 func (ec *executionContext) marshalOCompetitionConnection2ᚖtkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐCompetitionConnection(ctx context.Context, sel ast.SelectionSet, v *model.CompetitionConnection) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._CompetitionConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOCompetitionEdge2tkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐCompetitionEdge(ctx context.Context, sel ast.SelectionSet, v model.CompetitionEdge) graphql.Marshaler {
+	return ec._CompetitionEdge(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalOCompetitionEdge2ᚕᚖtkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐCompetitionEdge(ctx context.Context, sel ast.SelectionSet, v []*model.CompetitionEdge) graphql.Marshaler {
@@ -3477,19 +3688,31 @@ func (ec *executionContext) marshalOCompetitionEdge2ᚖtkame123ᚑnetᚋworldcup
 	return ec._CompetitionEdge(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalOInt2int(ctx context.Context, v interface{}) (int, error) {
+	return graphql.UnmarshalInt(v)
+}
+
+func (ec *executionContext) marshalOInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
+	return graphql.MarshalInt(v)
+}
+
 func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
 	if v == nil {
 		return nil, nil
 	}
-	res, err := graphql.UnmarshalInt(v)
-	return &res, graphql.WrapErrorWithInputPath(ctx, err)
+	res, err := ec.unmarshalOInt2int(ctx, v)
+	return &res, err
 }
 
 func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return graphql.MarshalInt(*v)
+	return ec.marshalOInt2int(ctx, sel, *v)
+}
+
+func (ec *executionContext) marshalOMatch2tkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐMatch(ctx context.Context, sel ast.SelectionSet, v model.Match) graphql.Marshaler {
+	return ec._Match(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalOMatch2ᚕᚖtkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐMatch(ctx context.Context, sel ast.SelectionSet, v []*model.Match) graphql.Marshaler {
@@ -3539,11 +3762,77 @@ func (ec *executionContext) marshalOMatch2ᚖtkame123ᚑnetᚋworldcupᚑgqᚑse
 	return ec._Match(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalOMatchConnection2tkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐMatchConnection(ctx context.Context, sel ast.SelectionSet, v model.MatchConnection) graphql.Marshaler {
+	return ec._MatchConnection(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalOMatchConnection2ᚖtkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐMatchConnection(ctx context.Context, sel ast.SelectionSet, v *model.MatchConnection) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._MatchConnection(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOMatchEdge2tkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐMatchEdge(ctx context.Context, sel ast.SelectionSet, v model.MatchEdge) graphql.Marshaler {
+	return ec._MatchEdge(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalOMatchEdge2ᚕᚖtkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐMatchEdge(ctx context.Context, sel ast.SelectionSet, v []*model.MatchEdge) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOMatchEdge2ᚖtkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐMatchEdge(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalOMatchEdge2ᚖtkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐMatchEdge(ctx context.Context, sel ast.SelectionSet, v *model.MatchEdge) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._MatchEdge(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalONode2tkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐNode(ctx context.Context, sel ast.SelectionSet, v model.Node) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec._Node(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOPlayer2tkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐPlayer(ctx context.Context, sel ast.SelectionSet, v model.Player) graphql.Marshaler {
+	return ec._Player(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalOPlayer2ᚖtkame123ᚑnetᚋworldcupᚑgqᚑserverᚋgraphᚋmodelᚐPlayer(ctx context.Context, sel ast.SelectionSet, v *model.Player) graphql.Marshaler {
@@ -3554,8 +3843,7 @@ func (ec *executionContext) marshalOPlayer2ᚖtkame123ᚑnetᚋworldcupᚑgqᚑs
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {
-	res, err := graphql.UnmarshalString(v)
-	return res, graphql.WrapErrorWithInputPath(ctx, err)
+	return graphql.UnmarshalString(v)
 }
 
 func (ec *executionContext) marshalOString2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
@@ -3566,15 +3854,15 @@ func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v in
 	if v == nil {
 		return nil, nil
 	}
-	res, err := graphql.UnmarshalString(v)
-	return &res, graphql.WrapErrorWithInputPath(ctx, err)
+	res, err := ec.unmarshalOString2string(ctx, v)
+	return &res, err
 }
 
 func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return graphql.MarshalString(*v)
+	return ec.marshalOString2string(ctx, sel, *v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {
@@ -3697,11 +3985,19 @@ func (ec *executionContext) marshalO__InputValue2ᚕgithubᚗcomᚋ99designsᚋg
 	return ret
 }
 
+func (ec *executionContext) marshalO__Schema2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx context.Context, sel ast.SelectionSet, v introspection.Schema) graphql.Marshaler {
+	return ec.___Schema(ctx, sel, &v)
+}
+
 func (ec *executionContext) marshalO__Schema2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx context.Context, sel ast.SelectionSet, v *introspection.Schema) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
 	return ec.___Schema(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalO__Type2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐType(ctx context.Context, sel ast.SelectionSet, v introspection.Type) graphql.Marshaler {
+	return ec.___Type(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalO__Type2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐTypeᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.Type) graphql.Marshaler {

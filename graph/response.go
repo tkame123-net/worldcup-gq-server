@@ -57,6 +57,22 @@ func ToMatchResponse(entity *domain.Match) *model.Match {
 	}
 }
 
+func ToMatchEdgeResponse(entity *domain.Match) *model.MatchEdge {
+	node := ToMatchResponse(entity)
+	return &model.MatchEdge{
+		Cursor: string(entity.ID),
+		Node:   node,
+	}
+}
+
+func ToMatchConnectionResponse(edges []*model.MatchEdge, pageInfo *model.PageInfo) *model.MatchConnection {
+
+	return &model.MatchConnection{
+		Edges:    edges,
+		PageInfo: pageInfo,
+	}
+}
+
 func ToGlobalID(verStr string, entityName string, id string) string {
 	idSlices := []string{verStr, entityName, id}
 	idStr := strings.Join(idSlices, ":")

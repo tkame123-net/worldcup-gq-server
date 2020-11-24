@@ -13,3 +13,5 @@ type Match struct {
 	//HomeTeamName string
 	//AwayTeamName string
 }
+
+func (Match) IsNode() {}
