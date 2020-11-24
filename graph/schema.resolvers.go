@@ -175,13 +175,13 @@ func (r *queryResolver) AllPlayer(ctx context.Context, first *int, last *int, af
 		EndCursor:       &endCursor,
 	}
 
-	// playwerEdges
+	// playerEdges
 	playerEdges := make([]*model.PlayerEdge, 0, len(edges))
 	for _, edge := range edges {
 		playerEdges = append(playerEdges, ToPlayerEdgeResponse(&edge))
 	}
 
-	// matchConnection に変換
+	// playerConnection に変換
 	matchConnection := ToPlayerConnectionResponse(playerEdges, &pageInfo)
 
 	return matchConnection, nil
