@@ -8,10 +8,6 @@ type Match struct {
 	Stage   string
 	Stadium string
 	City    string
-	//RoundId      int
-	//MatchId      int
-	//HomeTeamName string
-	//AwayTeamName string
 }
 
 func (Match) IsNode() {}
