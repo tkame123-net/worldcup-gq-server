@@ -129,45 +129,62 @@ func (r *queryResolver) AllMatch(ctx context.Context, first *int, last *int, aft
 	return matchConnection, nil
 }
 
-func (r *queryResolver) AllPlayer(ctx context.Context, filterPlayerName model.Filter) ([]*model.Player, error) {
+func (r *queryResolver) AllPlayer(ctx context.Context, first *int, last *int, after *string, before *string) (*model.PlayerConnection, error) {
 	ctx = context.Background()
-
-	if filterPlayerName.Eq != "" {
-		res, err := r.MongoPlayer.GetAllByPlayerName(ctx, filterPlayerName.Eq, domain.FilterType_EQ)
-		if err != nil {
-			log.Fatalf("error: %v", err)
-		}
-		resItems := make([]*model.Player, 0, len(res))
-		for _, item := range res {
-			resItems = append(resItems, ToPlayerResponse(item))
-		}
-
-		return resItems, nil
-	}
-
-	if filterPlayerName.Regex != "" {
-		res, err := r.MongoPlayer.GetAllByPlayerName(ctx, filterPlayerName.Regex, domain.FilterType_REGEX)
-		if err != nil {
-			log.Fatalf("error: %v", err)
-		}
-		resItems := make([]*model.Player, 0, len(res))
-		for _, item := range res {
-			resItems = append(resItems, ToPlayerResponse(item))
-		}
-
-		return resItems, nil
-	}
-
-	res, err := r.MongoPlayer.GetAll(ctx)
+	allPlayer, err := r.MongoPlayer.GetAll(ctx)
 	if err != nil {
 		log.Fatalf("error: %v", err)
 	}
-	resItems := make([]*model.Player, 0, len(res))
-	for _, item := range res {
-		resItems = append(resItems, ToPlayerResponse(item))
+
+	a := make([]domain.Player, 0, len(allPlayer))
+	for _, edge := range allPlayer {
+		e := *edge
+		a = append(a, e)
 	}
 
-	return resItems, nil
+	// CursorsToEdge/EdgesToReturn
+	nodes, err := EdgesToReturn(a, before, after, first, last)
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
+
+	// domain.Nodeからdomain.Competitionへの型キャスト
+	edges := make([]domain.Player, 0, len(nodes))
+	for _, v := range nodes {
+		edges = append(edges, v.(domain.Player))
+	}
+
+	// step3: PageInfoの生成
+	hasNextPage, err := HasNextPage(a, before, after, first, last)
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
+	hasPreviousPage, err := HasPreviousPage(a, before, after, first, last)
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
+	var startCursor, endCursor string
+	if len(edges) > 0 {
+		startCursor = string(edges[0].ID)
+		endCursor = string(edges[len(edges)-1].ID)
+	}
+	pageInfo := model.PageInfo{
+		HasNextPage:     hasNextPage,
+		HasPreviousPage: hasPreviousPage,
+		StartCursor:     &startCursor,
+		EndCursor:       &endCursor,
+	}
+
+	// playwerEdges
+	playerEdges := make([]*model.PlayerEdge, 0, len(edges))
+	for _, edge := range edges {
+		playerEdges = append(playerEdges, ToPlayerEdgeResponse(&edge))
+	}
+
+	// matchConnection に変換
+	matchConnection := ToPlayerConnectionResponse(playerEdges, &pageInfo)
+
+	return matchConnection, nil
 }
 
 func (r *queryResolver) Node(ctx context.Context, id string) (model.Node, error) {

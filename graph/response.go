@@ -33,19 +33,6 @@ func ToCompetitionConnectionResponse(edges []*model.CompetitionEdge, pageInfo *m
 	}
 }
 
-func ToPlayerResponse(entity *domain.Player) *model.Player {
-	mList := make([]*model.Match, 0, len(entity.MatchList))
-	for _, v := range entity.MatchList {
-		x := v
-		mList = append(mList, &model.Match{Year: x.Year, Stage: x.Stage, Stadium: x.Stadium, City: x.City})
-	}
-
-	return &model.Player{
-		Name:      entity.Name,
-		MatchList: mList,
-	}
-}
-
 func ToMatchResponse(entity *domain.Match) *model.Match {
 	id := ToGlobalID("01", "Match", string(entity.ID))
 	return &model.Match{
@@ -68,6 +55,38 @@ func ToMatchEdgeResponse(entity *domain.Match) *model.MatchEdge {
 func ToMatchConnectionResponse(edges []*model.MatchEdge, pageInfo *model.PageInfo) *model.MatchConnection {
 
 	return &model.MatchConnection{
+		Edges:    edges,
+		PageInfo: pageInfo,
+	}
+}
+
+func ToPlayerResponse(entity *domain.Player) *model.Player {
+	id := ToGlobalID("01", "Player", string(entity.ID))
+
+	mList := make([]*model.Match, 0, len(entity.MatchList))
+	for _, v := range entity.MatchList {
+		x := v
+		mList = append(mList, &model.Match{Year: x.Year, Stage: x.Stage, Stadium: x.Stadium, City: x.City})
+	}
+
+	return &model.Player{
+		ID:        id,
+		Name:      entity.Name,
+		MatchList: mList,
+	}
+}
+
+func ToPlayerEdgeResponse(entity *domain.Player) *model.PlayerEdge {
+	node := ToPlayerResponse(entity)
+	return &model.PlayerEdge{
+		Cursor: string(entity.ID),
+		Node:   node,
+	}
+}
+
+func ToPlayerConnectionResponse(edges []*model.PlayerEdge, pageInfo *model.PageInfo) *model.PlayerConnection {
+
+	return &model.PlayerConnection{
 		Edges:    edges,
 		PageInfo: pageInfo,
 	}

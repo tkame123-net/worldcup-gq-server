@@ -24,11 +24,6 @@ type CompetitionEdge struct {
 	Node   *Competition `json:"node"`
 }
 
-type Filter struct {
-	Eq    string `json:"eq"`
-	Regex string `json:"regex"`
-}
-
 type Match struct {
 	ID      string `json:"id"`
 	Year    int    `json:"year"`
@@ -57,6 +52,19 @@ type PageInfo struct {
 }
 
 type Player struct {
+	ID        string   `json:"id"`
 	Name      string   `json:"name"`
 	MatchList []*Match `json:"matchList"`
+}
+
+func (Player) IsNode() {}
+
+type PlayerConnection struct {
+	Edges    []*PlayerEdge `json:"edges"`
+	PageInfo *PageInfo     `json:"pageInfo"`
+}
+
+type PlayerEdge struct {
+	Cursor string  `json:"cursor"`
+	Node   *Player `json:"node"`
 }

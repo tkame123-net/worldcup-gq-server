@@ -36,10 +36,6 @@ type Match implements Node{
   stage: String!
   stadium: String!
   city: String!
-#  roundId: Int!
-#  matchId: Int!
-#  homeTeamName: String!
-#  awayTeamName: String!
 }
 
 type MatchConnection{
@@ -52,21 +48,26 @@ type MatchEdge {
   node: Match
 }
 
-
-input Filter {
-  eq: String! = ""
-  regex: String! = ""
-}
-
-type Player {
+type Player implements Node {
+  id: ID!
   name: String!
   matchList: [Match]
+}
+
+type PlayerConnection{
+  edges: [PlayerEdge]
+  pageInfo: PageInfo!
+}
+
+type PlayerEdge {
+  cursor: String!
+  node: Player
 }
 
 type Query {
   allCompetition(first: Int, last: Int, after: String, before: String): CompetitionConnection
   allMatch(first: Int, last: Int, after: String, before: String): MatchConnection
-  allPlayer(filterPlayerName: Filter! = {}): [Player]!
+  allPlayer(first: Int, last: Int, after: String, before: String): PlayerConnection
   node(id: ID!): Node
 }
 
