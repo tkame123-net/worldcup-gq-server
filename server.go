@@ -38,7 +38,7 @@ func main() {
 	// Add CORS middleware around every request
 	// See https://github.com/rs/cors for full option listing
 	router.Use(cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:8080", "http://localhost:8000"},
+		AllowedOrigins:   []string{os.Getenv("CORS_GRAPHQL_PLAYGROUND_URI"), os.Getenv("CORS_BLOG_URI")},
 		AllowCredentials: true,
 		Debug:            true,
 	}).Handler)
