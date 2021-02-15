@@ -196,14 +196,11 @@ func (r *queryResolver) Node(ctx context.Context, id string) (model.Node, error)
 	switch globalID.EntityName {
 	case "Competition":
 		oid := domain.CompetitionID(globalID.ID)
-		b, err := r.MongoCompetition.Exists(ctx, &(oid))
+		b, err := r.MongoCompetition.Get(ctx, oid)
 		if err != nil {
 			return nil, err
 		}
-		if b == false {
-			return nil, errors.New("not found")
-		}
-		return model.Competition{ID: id}, nil
+		return model.Competition{ID: id, Year: b.Year, Country: b.Country}, nil
 
 	case "Match":
 		oid := domain.MatchID(globalID.ID)

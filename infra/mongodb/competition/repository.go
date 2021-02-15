@@ -88,6 +88,34 @@ func (r *repository) GetAll(ctx context.Context) ([]*domain.Competition, error) 
 	return items, nil
 }
 
+func (r *repository) Get(ctx context.Context, id domain.CompetitionID) (*domain.Competition, error) {
+	var entity entity
+
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+	c, err := r.client(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("message: %w", err)
+	}
+	defer c.Client.Disconnect(ctx)
+	col := c.Client.Database(c.Database).Collection(collection)
+
+	objectID, _ := primitive.ObjectIDFromHex(string(id))
+
+	e := col.FindOne(ctx, bson.M{"_id": objectID}).Decode(&entity)
+	if e != nil {
+		// todo: エラーハンドリング（Nodocだけ分岐させたい）
+		log.Printf("log: %v", e)
+		return nil, nil
+	}
+
+	log.Println("[info] infra/mongodb/Competition/Get")
+	log.Println("[info] ", id)
+	log.Println("[info] ", entity)
+
+	return entity.toDomain(), nil
+}
+
 func (r *repository) GetCursorsToEdges(ctx context.Context, after *string, before *string) ([]*domain.Competition, error) {
 	var entities []entity
 	var filter bson.M

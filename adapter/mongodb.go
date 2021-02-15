@@ -17,6 +17,7 @@ type MongoClient func(ctx context.Context) (*MongoDBAPI, error)
 type MongodbCompetitionRepository interface {
 	GetByYear(ctx context.Context, year *int) (*domain.Competition, error)
 	GetAll(ctx context.Context) ([]*domain.Competition, error)
+	Get(ctx context.Context, id domain.CompetitionID) (*domain.Competition, error)
 	GetCursorsToEdges(ctx context.Context, after *string, before *string) ([]*domain.Competition, error)
 	GetMultiByRange(ctx context.Context, limit *int, cursor *string, asc *bool) ([]*domain.Competition, error)
 	GetAllByCountry(ctx context.Context, country *string) ([]*domain.Competition, error)
