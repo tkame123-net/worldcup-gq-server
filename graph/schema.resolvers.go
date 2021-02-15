@@ -12,6 +12,25 @@ import (
 	"tkame123-net/worldcup-gq-server/graph/model"
 )
 
+func (r *competitionResolver) Matches(ctx context.Context, obj *model.Competition) ([]*model.Match, error) {
+	ctx = context.Background()
+	year := obj.Year
+	filterType := domain.FilterType_EQ
+	//	getAllByYear
+	domainMatches, err := r.MongoMatch.GetAllByYear(ctx, year, filterType)
+	if err != nil {
+		log.Fatalf("error: %v", err)
+	}
+
+	matches := make([]*model.Match, 0, len(domainMatches))
+	for _, domainMatch := range domainMatches {
+		matches = append(matches, ToMatchResponse(domainMatch))
+	}
+
+	return matches, nil
+
+}
+
 func (r *queryResolver) AllCompetition(ctx context.Context, first *int, last *int, after *string, before *string) (*model.CompetitionConnection, error) {
 	// allEdges
 	ctx = context.Background()
@@ -221,7 +240,11 @@ func (r *queryResolver) Node(ctx context.Context, id string) (model.Node, error)
 	return nil, nil
 }
 
+// Competition returns generated.CompetitionResolver implementation.
+func (r *Resolver) Competition() generated.CompetitionResolver { return &competitionResolver{r} }
+
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
+type competitionResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }

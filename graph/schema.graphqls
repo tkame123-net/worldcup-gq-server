@@ -18,6 +18,7 @@ type Competition implements Node{
   id: ID!
   year: String!
   country: String!
+  matches: [Match]
 }
 
 type CompetitionConnection{

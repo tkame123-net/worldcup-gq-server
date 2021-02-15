@@ -7,9 +7,10 @@ type Node interface {
 }
 
 type Competition struct {
-	ID      string `json:"id"`
-	Year    string `json:"year"`
-	Country string `json:"country"`
+	ID      string   `json:"id"`
+	Year    string   `json:"year"`
+	Country string   `json:"country"`
+	Matches []*Match `json:"matches"`
 }
 
 func (Competition) IsNode() {}
