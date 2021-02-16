@@ -5,7 +5,6 @@ package graph
 
 import (
 	"context"
-	"errors"
 	"log"
 	"tkame123-net/worldcup-gq-server/domain"
 	"tkame123-net/worldcup-gq-server/graph/generated"
@@ -223,15 +222,12 @@ func (r *queryResolver) Node(ctx context.Context, id string) (model.Node, error)
 
 	case "Match":
 		oid := domain.MatchID(globalID.ID)
-		b, err := r.MongoMatch.Exists(ctx, &(oid))
+		b, err := r.MongoMatch.Get(ctx, oid)
 		if err != nil {
 			return nil, err
 		}
-		if b == false {
-			return nil, errors.New("not found")
-		}
 
-		return model.Match{ID: id}, nil
+		return model.Match{ID: id, Year: b.Year, Stage: b.Stage, Stadium: b.Stadium, City: b.City}, nil
 
 	default:
 

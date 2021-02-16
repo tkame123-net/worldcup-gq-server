@@ -27,6 +27,7 @@ type MongodbCompetitionRepository interface {
 type MongodbMatchRepository interface {
 	GetAll(ctx context.Context) ([]*domain.Match, error)
 	GetAllByYear(ctx context.Context, year string, filterType domain.FilterType) ([]*domain.Match, error)
+	Get(ctx context.Context, id domain.MatchID) (*domain.Match, error)
 	Exists(ctx context.Context, id *domain.MatchID) (bool, error)
 }
 
