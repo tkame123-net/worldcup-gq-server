@@ -10,10 +10,10 @@ gen-ts:
 gen-schema:
 	gqlgen generate
 
-build: test
+build:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o build/user_api server.go
 
-build-local: test
+build-local:
 	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -a -installsuffix cgo -o build/user_api server.go
 
 run-local: build-local
