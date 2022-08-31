@@ -2,27 +2,75 @@
 #
 # https://gqlgen.com/getting-started/
 
-type Todo {
+interface Node {
+  # The ID of the object.
   id: ID!
-  text: String!
-  done: Boolean!
-  user: User!
 }
 
-type User {
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+type Competition implements Node{
+  id: ID!
+  year: String!
+  country: String!
+  matches: [Match]
+}
+
+type CompetitionConnection{
+  edges: [CompetitionEdge]
+  pageInfo: PageInfo!
+}
+
+type CompetitionEdge {
+  cursor: String!
+  node: Competition
+}
+
+type Match implements Node{
+  id: ID!
+  year: Int!
+  stage: String!
+  stadium: String!
+  city: String!
+}
+
+type MatchConnection{
+  edges: [MatchEdge]
+  pageInfo: PageInfo!
+}
+
+type MatchEdge {
+  cursor: String!
+  node: Match
+}
+
+type Player implements Node {
   id: ID!
   name: String!
+  matchList: [Match]
+}
+
+type PlayerConnection{
+  edges: [PlayerEdge]
+  pageInfo: PageInfo!
+}
+
+type PlayerEdge {
+  cursor: String!
+  node: Player
 }
 
 type Query {
-  todos: [Todo!]!
+  allCompetition(first: Int, last: Int, after: String, before: String): CompetitionConnection
+  allMatch(first: Int, last: Int, after: String, before: String): MatchConnection
+  allPlayer(first: Int, last: Int, after: String, before: String): PlayerConnection
+  node(id: ID!): Node
 }
 
-input NewTodo {
-  text: String!
-  userId: String!
-}
-
-type Mutation {
-  createTodo(input: NewTodo!): Todo!
-}
+# type Mutation {
+# }
